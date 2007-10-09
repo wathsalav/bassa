@@ -1,8 +1,17 @@
+/***************************************************************************
+ *   Copyright (C) 2007 by wathsala vithanage   *
+ *   wvi@ucsc.cmb.ac.lk   *
+ ***************************************************************************/
+
 #ifndef BASSA_MODULE_MANAGER_H
 #define BASSA_MODULE_MANAGER_H
 
 #include <dlfcn.h>
 #include "noc_filter_util.h"
+
+//Variables accessible for modules
+extern char *sys_addr;
+extern int sys_port;
 
 #define CORE_BINDING RTLD_NOW | RTLD_GLOBAL
 #define TEST_BINDING RTLD_LAZY | RTLD_LOCAL

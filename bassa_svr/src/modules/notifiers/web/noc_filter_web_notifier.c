@@ -1,4 +1,8 @@
-#define _GNU_SOURCE
+/***************************************************************************
+ *   Copyright (C) 2007 by wathsala vithanage   *
+ *   wvi@ucsc.cmb.ac.lk   *
+ ***************************************************************************/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -63,7 +67,7 @@ if (webnot->cache_url == NULL)
   if (!curl_handle)
     return -1;
   bassa_setopts (curl_handle, post, last, FORM_NAME, 
-		      xml_buffer, CONTENT_TYPE, webnot->notifyurl, 20);
+		      xml_buffer, CONTENT_TYPE, webnot->notifyurl, 20, webnot->http_proxy);
   int perform, times;
   perform = 0;
   long int round_connect_timeout, sleep_time;
@@ -81,7 +85,7 @@ if (webnot->cache_url == NULL)
 	  sleep_time = 
 	    (long int)(RETRY_GAP_MICROS / (webnot->maxtries - times));
 	  bassa_setopts (curl_handle, post, last, FORM_NAME, xml_buffer, 
-			      CONTENT_TYPE, webnot->notifyurl, webnot->timeout);
+			      CONTENT_TYPE, webnot->notifyurl, webnot->timeout, webnot->http_proxy);
 #ifdef DEBUG
 	  printf ("CONNECT_TIMEOUT: %li\n", round_connect_timeout);
 	  printf ("SLEEP_TIME_GAP: %li\n", sleep_time);
@@ -123,7 +127,8 @@ bassa_get_astatus (int status)
 
 void 
 bassa_setopts (CURL *curl_handle, struct curl_httppost *post, struct curl_httppost *last, 
-	       char *form_name, char *xml_buffer, char *content_type, char *url, int con_timeout)
+	       char *form_name, char *xml_buffer, char *content_type, char *url, int con_timeout,
+	       char *proxy)
 {
   curl_formadd (&post, &last, CURLFORM_COPYNAME, form_name,
 		     CURLFORM_COPYCONTENTS, xml_buffer,
@@ -131,7 +136,7 @@ bassa_setopts (CURL *curl_handle, struct curl_httppost *post, struct curl_httppo
 		     content_type, CURLFORM_END);
   curl_easy_setopt (curl_handle, CURLOPT_URL, url);
   curl_easy_setopt (curl_handle, CURLOPT_HTTPPOST, post);
-  curl_easy_setopt (curl_handle, CURLOPT_PROXY, getenv("http_proxy"));
+  curl_easy_setopt (curl_handle, CURLOPT_PROXY, proxy);
   curl_easy_setopt (curl_handle, CURLOPT_CONNECTTIMEOUT, con_timeout);
 }
 
@@ -166,10 +171,12 @@ bassa_webnotconf_parse (bassa_web_notification *webnot, char *conf)
   int timeout = 0;
   char *cacheurl = NULL;
   char *notifyurl = NULL;
+  char *http_proxy = NULL;
   
   cfg_opt_t opts[] = {
     CFG_SIMPLE_STR("notifyurl", &notifyurl),
     CFG_SIMPLE_STR("cacheurl", &cacheurl),
+    CFG_SIMPLE_STR("http_proxy", &http_proxy),
     CFG_SIMPLE_INT("maxtries", &maxtries),
     CFG_SIMPLE_INT("timeout", &timeout)
   };
@@ -180,6 +187,7 @@ bassa_webnotconf_parse (bassa_web_notification *webnot, char *conf)
   webnot->timeout = timeout;
   webnot->maxtries = maxtries;
   webnot->cache_url = cacheurl;
+  webnot->http_proxy = http_proxy;
   cfg_free (cfg);
 }
 

@@ -60,3 +60,13 @@ bassa_timer_set_alarm(bassa_timer *timer, int hours, int mins, int seconds)
 #endif //DEBUG
 }
 
+void bassa_timer_sleep(time_t sec, long nsec)
+{
+  struct timespec req;
+  req.tv_sec = sec;
+  req.tv_nsec = nsec;
+#ifdef DEBUG
+  printf ("Nano sleep\n");
+#endif //DEBUG
+  nanosleep (&req, NULL);
+}

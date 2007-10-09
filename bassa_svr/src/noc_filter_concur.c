@@ -1,5 +1,11 @@
+/***************************************************************************
+ *   Copyright (C) 2007 by wathsala vithanage   *
+ *   wvi@ucsc.cmb.ac.lk   *
+ ***************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 #include "noc_filter_concur.h"
 
@@ -22,29 +28,61 @@ bassa_mutex* bassa_mutex_new ()
   return bm;
 }
 
-int bassa_block_signal (int signal)
+int bassa_block_signal (int num, ...)
 {
+  va_list argptr;
+  va_start(argptr, num);
   sigset_t newmask;
   sigemptyset (&newmask);
-  sigaddset (&newmask, signal);
+  for (;num;num--)
+    {
+      int sig = va_arg(argptr, int);
+      sigaddset (&newmask, sig);
+    }
   if (pthread_sigmask(SIG_BLOCK, &newmask, NULL) < 0)
     return 1;
   return 0;
 }
 
-int bassa_unblock_signal (int signal)
+int bassa_unblock_signal (int num, ...)
 {
+  va_list argptr;
+  va_start(argptr, num);
   sigset_t newmask, pendmask;
-  if (sigpending (&pendmask) < 0)
-    return 1;
-  if (sigismember (&pendmask, signal) < 0)
-    return 2;
   sigemptyset (&newmask);
-  sigaddset (&newmask, signal);
+  for (;num;num--)
+    {
+      int sig = va_arg(argptr, int);
+      if (sigpending (&pendmask) < 0)
+	return 1;
+      if (sigismember (&pendmask, sig) < 0)
+	return 2;
+      sigaddset (&newmask, sig);
+    }
   if (pthread_sigmask (SIG_UNBLOCK, &newmask, NULL) < 0)
     return 3;
   return 0;
 }
+
+
+int bassa_blockall_signals ()
+{
+  sigset_t newmask;
+  sigfillset (&newmask);
+  if (pthread_sigmask(SIG_BLOCK, &newmask, NULL) < 0)
+    return 1;
+  return 0;
+}
+
+int bassa_unblockall_signals ()
+{
+  sigset_t newmask;
+  sigfillset (&newmask);
+  if (pthread_sigmask(SIG_UNBLOCK, &newmask, NULL) < 0)
+    return 1;
+  return 0;
+}
+
 
 int 
 bassa_wait_spawn(bassa_task_pool *tp, void* (*routine)(void*), void *args)
@@ -141,6 +179,44 @@ int bassa_mutex_unlock(bassa_mutex *bm)
   #ifdef POSIX_THREADS
   return pthread_mutex_unlock(&(bm->lock));
   #endif //POSIX_THREADS
+}
+
+bassa_semaphore*
+bassa_shared_semaphore(bassa_semaphore *bs)
+{
+  if (bs == NULL)
+    bs = (bassa_semaphore*)malloc(sizeof(bassa_semaphore));
+  sem_init (&(bs->semaphore), 0, 0);
+  return bs;
+}
+
+int bassa_sema_wait(bassa_semaphore *bs)
+{
+#ifdef POSIX_THREADS
+  return sem_wait(&(bs->semaphore));
+#endif //POSIX_THREADS
+}
+
+int bassa_sema_trywait(bassa_semaphore *bs)
+{
+#ifdef POSIX_THREADS
+  return sem_trywait(&(bs->semaphore));
+#endif //POSIX_THREADS
+}
+
+int bassa_sema_post(bassa_semaphore *bs)
+{
+#ifdef POSIX_THREADS
+  return sem_post(&(bs->semaphore));
+#endif //POSIX_THREADS
+}
+
+int bassa_sema_destroy(bassa_semaphore *bs)
+{
+#ifdef POSIX_THREADS
+  int ret = sem_destroy(&(bs->semaphore));
+#endif //POSIX_THREADS
+  return ret;
 }
 
 void bassa_exit(int *ret)

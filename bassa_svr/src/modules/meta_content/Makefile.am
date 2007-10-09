@@ -1,1 +1,1 @@
-SUBDIRS = video2flv
+SUBDIRS = video2flv video2thumb

@@ -14,7 +14,7 @@
 #include "noc_filter_concur.h"
 
 bassa_transaction *
-bassa_transaction_new (char *url, char *local_path, long long size, char *http_proxy)
+bassa_transaction_new (char *url, char *local_path, long long size/*, char *http_proxy*/)
 {
   if (url && local_path)
     {
@@ -28,7 +28,7 @@ bassa_transaction_new (char *url, char *local_path, long long size, char *http_p
       transaction->url = url;
       transaction->path = bassa_get_location (transaction->url);
       transaction->size = size;
-      transaction->http_proxy = http_proxy;
+      transaction->http_proxy = sys_proxy;
       transaction->header_list = NULL;
       transaction->curl_handle = curl_easy_init ();
       transaction->http_bf = 0;
@@ -166,8 +166,10 @@ bassa_transaction_set_options (bassa_transaction *transaction,
 #endif //DEBUG
   curl_easy_setopt (transaction->curl_handle, CURLOPT_URL, 
 		    transaction->url_encoded);
-  curl_easy_setopt (transaction->curl_handle, CURLOPT_PROXY, 
-		    transaction->http_proxy);
+  curl_easy_setopt (transaction->curl_handle, CURLOPT_FOLLOWLOCATION,
+		    1);
+  curl_easy_setopt (transaction->curl_handle, CURLOPT_MAXREDIRS,
+		    3);
   curl_easy_setopt (transaction->curl_handle, CURLOPT_NOSIGNAL,
 		    1);
   curl_easy_setopt (transaction->curl_handle, CURLOPT_CONNECTTIMEOUT,
@@ -187,6 +189,9 @@ bassa_transaction_set_options (bassa_transaction *transaction,
   curl_easy_setopt (transaction->curl_handle,
 		    CURLOPT_WRITEDATA, 
 		    transaction->local_file);
+  curl_easy_setopt (transaction->curl_handle,
+		    CURLOPT_PROXY,
+		    transaction->http_proxy);
   switch (status)
     {
     case CURLE_PARTIAL_FILE:

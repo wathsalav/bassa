@@ -1,3 +1,8 @@
+/***************************************************************************
+ *   Copyright (C) 2007 by wathsala vithanage   *
+ *   wvi@ucsc.cmb.ac.lk   *
+ ***************************************************************************/
+
 #ifndef NOC_FILTER_CONCUR_H
 #define NOC_FILTER_CONCUR_H
 #include <config.h>
@@ -8,6 +13,7 @@
 #include <signal.h>
 #include <string.h>
 #include <errno.h>
+#include <semaphore.h>
 
 #include "noc_filter_util.h"
 
@@ -28,13 +34,25 @@ typedef struct
 #endif //POSIX_THREADS
 } bassa_mutex;
 
+typedef struct
+{
+#ifdef POSIX_THREADS
+  sem_t semaphore;
+#endif //POSIX_THREADS
+}bassa_semaphore;
+
+
 bassa_task_pool* bassa_task_pool_new (int max_tasklets);
 
 bassa_mutex* bassa_mutex_new ();
 
-int bassa_block_signal (int);
+int bassa_block_signal (int num, ...);
 
-int bassa_unblock_signal (int);
+int bassa_unblock_signal (int num, ...);
+
+int bassa_blockall_signals ();
+
+int bassa_unblockall_signals ();
 
 #ifdef POSIX_THREADS
 #define bassa_add_cleanup(f, a)			\
@@ -60,6 +78,20 @@ int bassa_mutex_lock(bassa_mutex *bm);
 	
 int bassa_mutex_unlock(bassa_mutex *bm);
 
+bassa_semaphore* 
+bassa_named_semaphore ();
+
+bassa_semaphore* 
+bassa_shared_semaphore ();
+
+int bassa_sema_wait(bassa_semaphore *bs);
+
+int bassa_sema_trywait(bassa_semaphore *bs);
+
+int bassa_sema_post(bassa_semaphore *bs);
+
+int bassa_sema_destroy(bassa_semaphore *bs);
+
 void bassa_exit(int *ret);
 		
 void bassa_task_yield();
@@ -69,12 +101,16 @@ void bassa_task_yield();
 
 int bassa_kill_task(bassa_task_pool *tp, int t);
 
+#ifdef POSIX_THREADS
 #define bassa_push_cleaner(func,arg)		\
   pthread_cleanup_push (func, arg)
 
 #define bassa_pop_cleaner(i)			\
   pthread_cleanup_pop (i)
-	
+
+#define bassa_task_id()				\
+  pthread_self()
+#endif //POSIX_THREADS
 
 #define NOC_FILTER_SET_POOL(thread_array, index)	\
   thread_array[index] = t;

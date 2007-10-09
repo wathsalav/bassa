@@ -1,3 +1,8 @@
+/***************************************************************************
+ *   Copyright (C) 2007 by wathsala vithanage   *
+ *   wvi@ucsc.cmb.ac.lk   *
+ ***************************************************************************/
+
 #ifndef NOC_FILTER_CONFIGURE_H
 #define NOC_FILTER_CONFIGURE_H
 
@@ -31,56 +36,51 @@
 #define SERVER_HTTP_PROXY_ADDRESS_TAG "server_http_proxy_address"
 #define SERVER_HTTP_PROXY_PORT_ID 9
 #define SERVER_HTTP_PROXY_PORT_TAG "server_http_proxy_port"
-#define SERVER_BACKLOG_ID 29
+#define SERVER_BACKLOG_ID 10
 #define SERVER_BACKLOG_TAG "server_backlog"
 
 //This is the downloader section..
-#define DOWNLOADER_ID 10
+#define DOWNLOADER_ID 11
 #define DOWNLOADER_TAG "downloader"
-#define DOWNLOADER_ACTIVATION_TIME_ID 11
+#define DOWNLOADER_ACTIVATION_TIME_ID 12
 #define DOWNLOADER_ACTIVATION_TIME_TAG "downloader_activation_time"
-#define DOWNLOADER_DEACTIVATION_TIME_ID 32
+#define DOWNLOADER_DEACTIVATION_TIME_ID 13
 #define DOWNLOADER_DEACTIVATION_TIME_TAG "download_deactivation_time"
-#define HOURS_ID 12
+#define HOURS_ID 14
 #define HOURS_TAG "hours"
-#define MINUTES_ID 13
+#define MINUTES_ID 15
 #define MINUTES_TAG "minutes"
-#define SECONDS_ID 14
+#define SECONDS_ID 16
 #define SECONDS_TAG "seconds"
-#define DOWNLOADER_CHILDREN_ID 15
+#define DOWNLOADER_CHILDREN_ID 17
 #define DOWNLOADER_CHILDREN_TAG "downloader_children"
-#define MONITOR_PROGRESS_ID 16
+#define MONITOR_PROGRESS_ID 18
 #define MONITOR_PROGRESS_TAG "monitor_progress"
-#define MAX_TRIES_ID 17
+#define MAX_TRIES_ID 19
 #define MAX_TRIES_TAG "max_tries"
-#define REMOVE_INACTIVE_ID 18
-#define REMOVE_INACTIVE_TAG "remove_inactive"
-#define DOWNLOADER_QUEUE_LENGTH_ID 19
+#define DOWNLOADER_QUEUE_LENGTH_ID 20
 #define DOWNLOADER_QUEUE_LENGTH_TAG "downloader_queue_length"
-#define CONNECT_TIMEOUT_ID 33
+#define CONNECT_TIMEOUT_ID 21
 #define CONNECT_TIMEOUT_TAG "connect_timeout"
-#define DOWNLOADER_RETRIES_ID 34
+#define DOWNLOADER_RETRIES_ID 22
 #define DOWNLOADER_RETRIES_TAG "max_tries"
 
 //This is the repository section
-#define REPOSITORY_ID 20
+#define REPOSITORY_ID 23
 #define REPOSITORY_TAG "repository"
-#define REPOSITORY_PATH_ID 21
+#define REPOSITORY_PATH_ID 24
 #define REPOSITORY_PATH_TAG "repository_path"
-#define REPOSITORY_URL_PREFIX_ID 22
-#define REPOSITORY_URL_PREFIX_TAG "repository_url_prefix"
-
 
 //This is the modules section
-#define MODULES_ID 35
+#define MODULES_ID 25
 #define MODULES_TAG "modules"
-#define MODULE_ID 36
+#define MODULE_ID 26
 #define MODULE_TAG "module"
-#define MODULE_NAME_ID 37
+#define MODULE_NAME_ID 27
 #define MODULE_NAME_TAG "name"
-#define MODULE_PATH_ID 38
+#define MODULE_PATH_ID 28
 #define MODULE_PATH_TAG "path"
-#define MODULE_CONF_ID 30
+#define MODULE_CONF_ID 29
 #define MODULE_CONF_TAG "modconf"
 
 
@@ -110,17 +110,14 @@ typedef struct
   int dminutes;
   int dseconds;
   int max_children;     /*Maximum downloaders*/
-  int progress;         /*Whether to monitor progress boolean 0|1*/
   int max_tries;        /*Maximum number of tries*/
   int connect_timeout;  /*Download timeout*/
-  int remove_inactive;  /*Whether to remove inactive boolean 0|1*/
   int max_queue_len;    /*Maximum length of the queue*/
 }bassa_downloader_conf;
 
 typedef struct
 {
   char *repo_path;      /*Path to the local repository*/
-  char *url_prefix;     /*The prefix of the URL to the location where file is stored*/
 }bassa_repository_conf;
 
 typedef struct

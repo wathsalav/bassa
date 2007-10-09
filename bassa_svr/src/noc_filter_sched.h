@@ -1,3 +1,8 @@
+/***************************************************************************
+ *   Copyright (C) 2007 by wathsala vithanage   *
+ *   wvi@ucsc.cmb.ac.lk   *
+ ***************************************************************************/
+
 #ifndef NOC_FILTER_SCHED_H
 #define NOC_FILTER_SCHED_H
 #include <signal.h>
@@ -26,10 +31,12 @@ typedef struct
   pthread_t *bassa_downloader_ids;
   int *bassa_cleaner_status;
   int bassa_max_downloaders;
-  int bassa_downloader_count;
+  volatile int bassa_downloader_count;
   bassa_task_pool *mtp, *stp;
   unsigned int trigger;
+  unsigned int saved_trigger;
   unsigned int sigignore_flag;
+  bassa_semaphore *cpu_lock;
 } bassa_sched;
 
 
@@ -83,5 +90,8 @@ void bassa_sched_outop_thread_clean (void *param);
 int bassa_sched_start (bassa_sched *nfs);
 
 int bassa_cleaners_done (bassa_sched *nfs);
+
+void bassa_sigusr1_handler (int signum);
+void bassa_sigusr2_handler (int signum);
 
 #endif

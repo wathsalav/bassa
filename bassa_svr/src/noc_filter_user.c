@@ -10,6 +10,7 @@
 #include "noc_filter_transaction.h"
 #include "noc_filter_file.h"
 
+extern char *sys_docroot;
 
 bassa_request *
 bassa_request_new (char *name, char *email, char *ip, 
@@ -27,8 +28,7 @@ bassa_request_new (char *name, char *email, char *ip,
   user->size = size;
   char *local_path = NULL;
   char *file_name = bassa_file_get_name (url);
-  char *http_proxy = getenv ("http_proxy");
-  char *path = getenv ("local_repository");
+  char *path = sys_docroot;
   if (file_name)
     {
       local_path = (char *) malloc (strlen (file_name) + strlen (path) + 2);
@@ -37,7 +37,7 @@ bassa_request_new (char *name, char *email, char *ip,
       strcat (local_path, file_name);
       free (file_name);
     }
-  user->transaction = bassa_transaction_new (url, local_path, size, http_proxy);
+  user->transaction = bassa_transaction_new (url, local_path, size/*, http_proxy*/);
   user->modinfo = modinfo; 
   return user;
 }
@@ -59,11 +59,13 @@ bassa_request_prp_sync (bassa_request *request)
     request->url = request->modinfo->prpc->url;
   if (request->modinfo->prpc->reset_proxy != 0)
     proxy = request->modinfo->prpc->proxy;
+  else
+    proxy = request->transaction->http_proxy;
   if (request->modinfo->prpc->renamed == 0)
     file_name = bassa_file_get_name (request->url);
   else
     file_name = request->modinfo->prpc->new_name;
-  path = getenv ("local_repository");
+  path = sys_docroot;
   if (file_name)
     {
       local_path = (char *) malloc (strlen (file_name) + strlen (path) + 2);

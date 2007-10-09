@@ -1,3 +1,8 @@
+/***************************************************************************
+ *   Copyright (C) 2007 by wathsala vithanage   *
+ *   wvi@ucsc.cmb.ac.lk   *
+ ***************************************************************************/
+
 #include <config.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -38,8 +43,9 @@ bassa_sched_new (bassa_conf *conf)
   nfs->mtp = bassa_task_pool_new (1);
   nfs->stp = bassa_task_pool_new (nfs->bassa_max_downloaders);
   nfs->bassa_downloader_count = 0;
-  nfs->trigger = 1;
-  //nfs->sigignore_flag = 0;
+  nfs->cpu_lock = NULL;
+  nfs->trigger = 0;
+  nfs->saved_trigger = 0;
   return nfs;
 }
 
@@ -62,11 +68,11 @@ bassa_main_debug_user (bassa_request * ux)
 void
 bassa_sigalarm_handler (int signum)
 {
-  bassa_block_signal (SIGALRM);
+  bassa_block_signal (1, SIGALRM);
 #ifdef DEBUG
-  printf ("TIMER_HANDLER\n");
+  printf ("TIMER_HANDLER %i\n", nfs->trigger);
 #endif //DEBUG
-  if (nfs->trigger == 1)
+  if (nfs->trigger == 0)
     {
 #ifdef DEBUG
       printf ("Starting Downloader(s)...\n");
@@ -76,10 +82,12 @@ bassa_sigalarm_handler (int signum)
       int mins = nfs->conf->dlcfg->dminutes;
       int secs = nfs->conf->dlcfg->dseconds;
       bassa_timer_set_alarm (nfs->timer, hours, mins, secs);
-      nfs->trigger = 0;
+      nfs->cpu_lock = bassa_shared_semaphore (nfs->cpu_lock);
+      nfs->trigger = 1;
+      sleep (10);
       bassa_nowait_spawn (nfs->mtp, bassa_sched_downloader_loop, NULL);
     }
-  else if (nfs->trigger == 0)
+  else if (nfs->trigger == 1)
     {
 #ifdef DEBUG
       printf ("Stoping Downloader(s)...\n");
@@ -89,24 +97,24 @@ bassa_sigalarm_handler (int signum)
       int mins = nfs->conf->dlcfg->minutes;
       int secs = nfs->conf->dlcfg->seconds;
       bassa_timer_set_alarm (nfs->timer, hours, mins, secs);
-      nfs->trigger = 1;
+      nfs->trigger = 0;
       int ret = bassa_kill_task (nfs->mtp, nfs->mtp->tasklets[0]);
       if (ret)
         {
           printf ("ECRITICAL: Failed to stop downloader HUB: %lu\n", 
-	  	   nfs->stp->tasklets[0]);
+	  	   nfs->mtp->tasklets[0]);
           exit (-1);
         }
     }
   bassa_timer_start (nfs->timer);
-  bassa_unblock_signal (SIGALRM);
+  bassa_unblock_signal (1, SIGALRM);
   return;
 }
 
 void *
 bassa_sched_downloader_loop (void *param)
 {
-  bassa_block_signal (SIGALRM);
+  bassa_blockall_signals ();
   int os, ot;
   bassa_push_cleaner(bassa_sched_downloader_cleanup_loop, NULL);
   while (1)
@@ -132,14 +140,14 @@ bassa_sched_downloader_loop (void *param)
       bassa_reset_cancel (&os, &ot);
     }
   bassa_pop_cleaner(0);
-  bassa_unblock_signal (SIGALRM);
+  bassa_unblockall_signals ();
   return NULL;
 }
 
 void
 bassa_sched_downloader_cleanup_loop (void *param)
 {
-  bassa_block_signal (SIGALRM);
+  bassa_block_signal (1, SIGALRM);
 #ifdef DEBUG
   printf ("BASSA_SCHED_DOWNLOADER_CLEANUP_LOOP\n");
 #endif //DEBUG
@@ -150,6 +158,7 @@ bassa_sched_downloader_cleanup_loop (void *param)
     {
       if (nfs->stp->tasklets[i] != 0)
         {
+          printf ("Killed: %lu\n", nfs->stp->tasklets[i]);
           int ret = bassa_kill_task (nfs->stp, nfs->stp->tasklets[i]);
           if (ret)
             {
@@ -165,13 +174,15 @@ bassa_sched_downloader_cleanup_loop (void *param)
   bassa_mutex fplock;
   bassa_mutex_lock (&fplock);
   bassa_mutex_unlock (&fplock);
-  bassa_unblock_signal (SIGALRM);
+  bassa_sema_destroy (nfs->cpu_lock);
+  bassa_unblock_signal (1, SIGALRM);
 }
 
 void
 bassa_sched_outop_thread_clean (void *param)
 {
-  bassa_block_signal (SIGALRM);
+  bassa_block_signal (1, SIGALRM);
+  //bassa_block_signal (SIGUSR1);
 #ifdef DEBUG
   printf ("BASSA_SCHED_OUTPUT_THREAD_CLEAN\n");
 #endif //DEBUG
@@ -184,13 +195,16 @@ bassa_sched_outop_thread_clean (void *param)
       nfs->bassa_downloader_count--;
     }
   bassa_mutex_unlock (&clbmut);
-  bassa_unblock_signal (SIGALRM);
+  bassa_unblock_signal (1, SIGALRM);
+#ifdef DEBUG
+  printf ("BASSA_SCHED_OUTPUT_THREAD_CLEAN_DONE\n");
+#endif //DEBUG
 }
 
 void *
 bassa_sched_outop_thread (void *un)
 {
-  bassa_block_signal (SIGALRM);
+  bassa_block_signal (1, SIGALRM);
   int os, ot;
   bassa_mutex cbmut, pbmut;
   //What if we cancel the thread while we are downloading, 
@@ -286,7 +300,7 @@ bassa_sched_outop_thread (void *un)
   bassa_reset_cancel (&os, &ot);
   bassa_reset_cancel (&os, &ot);	
   bassa_pop_cleaner (0);
-  bassa_unblock_signal (SIGALRM);
+  bassa_sema_post (nfs->cpu_lock);
   return NULL;
 }
 
@@ -304,5 +318,20 @@ int bassa_cleaners_done (bassa_sched *nfs)
       result &= nfs->bassa_cleaner_status[i];
     }
   return result;
+}
+
+void bassa_sigusr1_handler (int signum)
+{
+  printf ("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ %lu\n", bassa_task_id());
+#ifdef DEBUG
+  printf (">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Handling SIGUSR1\n");
+#endif //DEUG
+  return;
+}
+
+
+void bassa_sigusr2_handler (int signum)
+{
+  printf ("Fuck me plenty, SIGUSR2 received\n");
 }
 

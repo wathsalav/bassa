@@ -1,8 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2006 by wathsala vithanage   *
+ *   Copyright (C) 2007 by wathsala vithanage   *
  *   wvi@ucsc.cmb.ac.lk   *
- *   This is the main program of the Bassa server. We handle input and *
- *   output of the server here.* 
  ***************************************************************************/
 #include <config.h>
 #include <stdlib.h>
@@ -40,6 +38,29 @@
 //Bassa help message
 #define BASSA_HELP "Usage: bassa -c CONFIG_FILE\nBassa is an offline downloader (policy based)\n\n -c, --config-file\tpass a configuration file,\n\t\t\tdefault is %s\n"
 
+/**
+ * Data for client handler thread
+ */
+typedef struct 
+{
+  bassa_client *client; //Pointer to client data structure
+  bassa_sched *sched;	//Scheduler data structure
+} bassa_inputd;
+
+/**
+ * Input data for client accept function 
+ */
+typedef struct
+{
+  bassa_sched *sched;  //Pointer to scheduler
+  bassa_server *server; //Pointer to server
+} bassa_accept_info;
+
+char *sys_addr;
+char *sys_proxy;
+char *sys_docroot;
+int sys_port;
+
 //This structure holds all the variables that are passed as command line arguments.
 struct bassa_optstruct 
 {
@@ -66,24 +87,6 @@ bassa_getopts (int argc, char* argv[]);
 void bassa_uinfo (int itype);
 
 /**
- * Data for client handler thread
- */
-typedef struct 
-{
-  bassa_client *client; //Pointer to client data structure
-  bassa_sched *sched;	//Scheduler data structure
-} bassa_inputd;
-
-/**
- * Input data for client accept function 
- */
-typedef struct
-{
-  bassa_sched *sched;  //Pointer to scheduler
-  bassa_server *server; //Pointer to server
-} bassa_accept_info;
-
-/**
  * This function runs on a thread to collect data.
  * @param structure of client and scheduler object.
  */
@@ -95,6 +98,11 @@ void *bassa_inop_thread (void *in);
 void *bassa_accept (void *info);
 
 /**
+ * Register all global vairable and set environment
+ */
+void bassa_register_globals (bassa_conf *conf);
+
+/**
  * Handles SIGPIPE 
  */
 void bassa_sigpipe_handler (int signum);
@@ -104,43 +112,24 @@ int MAX_THREADS = 5;	 //Default maximum number of threads
 bassa_conf *conf;	 //Configuration data structure
 bassa_module_table *bmt; //Bassa module table
 
+
 int
 main (int argc, char *argv[])
 {
+  //bassa_block_signal (1,SIGALRM);
   signal (SIGPIPE, bassa_sigpipe_handler);
   struct bassa_optstruct *opts = bassa_getopts (argc, argv);
   conf = bassa_parse_configuration (opts->config_file);
   
+  //Set global values
+  bassa_register_globals(conf);
   if (!conf)
     {
       printf ("Invalid configuration file: %s\n", opts->config_file);
       exit (-1);
     }
 
-  if (conf->svrcfg->http_proxy_address)
-    {
-      int proxy_len = strlen(HTTP_PROTO_PREFIX) + strlen(conf->svrcfg->http_proxy_address) + 6;
-      char *proxy = (char*)malloc(proxy_len);
-      memset (proxy, (int)'\0', proxy_len);
-      sprintf (proxy, "%s%s:%i", HTTP_PROTO_PREFIX, conf->svrcfg->http_proxy_address, conf->svrcfg->http_proxy_port);
-      setenv ("http_proxy", proxy, 1);
-    }
-  else
-    setenv ("http_proxy", "", 1);
-  if (conf->repocfg->repo_path)
-    setenv ("local_repository", conf->repocfg->repo_path, 1);
-  else
-    {
-      printf ("Repository Not Found: Please Check %s\n", opts->config_file);
-      exit (-1);
-    }
-  if (conf->repocfg->url_prefix)
-    setenv ("url_prefix", conf->repocfg->url_prefix, 1);
-  else
-    {
-      printf ("Repository URL Not Found: Please Check %s\n", opts->config_file);
-      exit (-1);
-    }
+  
   bmt = bassa_module_table_new ();
   bassa_list *modconflist = conf->cfgcol->modconf_list;
   while (modconflist)
@@ -179,19 +168,24 @@ main (int argc, char *argv[])
 #ifdef DEBUG
   printf ("ALARM RETURNED: %i\n", jj);
 #endif
+
+  //Start active region modules
+  bassa_exec_path (NULL, bmt, 
+		   ACT_REGION, ACT_X);
+
   bassa_wait_spawn (NULL, bassa_accept, (void *) &acinfo);
 
   //Shutdown
   bassa_server_shutdown (server);
   bassa_server_delete (server);
   bassa_modtab_delete (bmt);
-  bassa_unblock_signal (SIGALRM);
+  //bassa_unblock_signal (1,SIGALRM);
   exit (0);
 }
 
 void *bassa_accept (void *info)
 {
-  bassa_block_signal (SIGALRM);
+  bassa_block_signal (1, SIGALRM);
   bassa_client *client;
   bassa_accept_info *acinfo = (bassa_accept_info*)info;
   bassa_server *server = acinfo->server;
@@ -211,14 +205,15 @@ void *bassa_accept (void *info)
       bassa_nowait_spawn (NULL, bassa_inop_thread, (void *) &inop);
       bassa_task_yield ();
     }
-  bassa_unblock_signal (SIGALRM);
+  bassa_unblock_signal (1, SIGALRM);
   return NULL;
 }
 
 void *bassa_inop_thread (void *in)
 {
   bassa_inputd *inop = (bassa_inputd*)in;
-  bassa_block_signal (SIGALRM);
+  bassa_block_signal (1, SIGALRM);
+  //bassa_block_signal (SIGUSR1);
   bassa_client *xclient = (bassa_client *) inop->client;
   char *rec = NULL;
   char *xml = NULL;
@@ -292,7 +287,7 @@ void *bassa_inop_thread (void *in)
       if (bm->is_od_message)
 	{
 	  //If we allready have the file ignore request!
-	  char *rpath = getenv ("local_repository");
+	  char *rpath = sys_docroot;
 	  bassa_repo *lrepo = bassa_repo_new (rpath);
 
 	  //This is nedded since inet_ntoa() returns a statically 
@@ -367,9 +362,9 @@ void *bassa_inop_thread (void *in)
 	    bassa_request_delete(user);
 	  bassa_repo_delete (lrepo);
 	}
-      else if (bm->is_search_message)
+      /*else if (bm->is_search_message)
 	{
-	  char *repo_path = getenv ("local_repository");
+	  char *repo_path = sys_docroot;
 	  if (!bm->search_message->file_name)
 	    return NULL;
 	  if (repo_path)
@@ -398,19 +393,36 @@ void *bassa_inop_thread (void *in)
 		printf ("No such file.\n");
 	      bassa_repo_delete (rp);
 	    }
-	}
+	}*/
     }
-  bassa_client_shutdown (xclient);
+  bassa_client_close (xclient);
   bassa_client_delete (xclient);
   bassa_messages_delete (bm);
   bassa_mutex bmut2;
   bassa_mutex_lock (&bmut2);
   THREAD_COUNT--;
   bassa_mutex_unlock(&bmut2);
-  bassa_unblock_signal (SIGALRM);
+  bassa_unblock_signal (1, SIGALRM);
   return NULL;
 }
 
+
+void bassa_register_globals (bassa_conf *conf)
+{
+  sys_addr = conf->svrcfg->server_address;
+  sys_port = conf->svrcfg->server_port;
+  sys_docroot = conf->repocfg->repo_path;
+  if (conf->svrcfg->http_proxy_address)
+    {
+      int proxy_len = strlen(HTTP_PROTO_PREFIX) + strlen(conf->svrcfg->http_proxy_address) + 6;\
+      char *proxy = (char*)malloc(proxy_len);
+      memset (proxy, (int)'\0', proxy_len);
+      sprintf (proxy, "%s%s:%i", HTTP_PROTO_PREFIX, conf->svrcfg->http_proxy_address, conf->svrcfg->http_proxy_port);\
+      sys_proxy = proxy;
+    }
+  else
+    sys_proxy = NULL;
+}
 
 struct bassa_optstruct*
 bassa_getopts (int argc, char* argv[])

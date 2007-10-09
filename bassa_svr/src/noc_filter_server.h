@@ -1,3 +1,7 @@
+/***************************************************************************
+ *   Copyright (C) 2007 by wathsala vithanage   *
+ *   wvi@ucsc.cmb.ac.lk   *
+ ***************************************************************************/
 #ifndef NOC_FILTER_SERVER_H
 #define NOC_FILTER_SERVER_H
 

@@ -40,8 +40,7 @@ void bassa_queue_enqueue(bassa_request *user, bassa_queue *queue)
 #ifdef DEBUG
   printf("FILTER_QEUE_ALLOC_INFO\n");
   bassa_request *ux = queue->head;
-  int x;
-  for(x=0; x<queue->element_count; x++)
+  while (ux)
     { 
       printf(">>>UX_ADDR: 0X%p\n", ux);
       printf(">>>UX->NEXT_ADDR: 0X%p\n", ux->next);

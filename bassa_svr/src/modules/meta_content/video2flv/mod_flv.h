@@ -1,3 +1,8 @@
+/***************************************************************************
+ *   Copyright (C) 2007 by wathsala vithanage   *
+ *   wvi@ucsc.cmb.ac.lk   *
+ ***************************************************************************/
+
 #ifndef MOD_FLV_H
 #define MOD_FLV_H
 
@@ -10,9 +15,12 @@
 #define DOWNLOAD_FAIL_STAT_STR "failed"
 
 #define NOTIFICATION_XML "<bassa>\
+<meta_info>\
 <file_name>%s</file_name>\
 <origin_url>%s</origin_url>\
 <meta_url>%s</meta_url>\
+<mime>video/flv</mime>\
+</meta_info>\
 </bassa>\n\r"
 
 #define FLV_EXT "flv"
@@ -54,6 +62,7 @@ typedef struct
   char *ab;              //Bitrate
   char *size;            //Video size
   char *flv_len;         //Length of the flv
+  char *http_proxy;      //HTTP Proxy
 }bassa_video2flv;
 
 //bassa_list *v2fl;
@@ -67,7 +76,8 @@ bassa_notify_metavideo (bassa_video2flv *v2f);
 
 void
 bassa_setopts (CURL *curl_handle, struct curl_httppost *post, struct curl_httppost *last, 
-		    char *form_name, char *xml_buffer, char *content_type, char *url, int con_timeout);
+	       char *form_name, char *xml_buffer, char *content_type, char *url, int con_timeout,
+	       char *http_proxy);
 
 int module_exec (void *x, char *conf);
 void module_exit (void *x);

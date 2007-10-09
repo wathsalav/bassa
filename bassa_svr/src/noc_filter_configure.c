@@ -1,3 +1,8 @@
+/***************************************************************************
+ *   Copyright (C) 2007 by wathsala vithanage   *
+ *   wvi@ucsc.cmb.ac.lk   *
+ ***************************************************************************/
+
 #include <stdlib.h>
 #include <expat.h>
 #include <string.h>
@@ -97,8 +102,6 @@ bassa_start_tag_handler(void *udata, char *name, char **attr)
     conf->current_tag = MAX_TRIES_ID;
   else if (!strcmp(name, MONITOR_PROGRESS_TAG))
     conf->current_tag = MONITOR_PROGRESS_ID;
-  else if (!strcmp(name, REMOVE_INACTIVE_TAG))
-    conf->current_tag = REMOVE_INACTIVE_ID;
   else if (!strcmp(name, DOWNLOADER_QUEUE_LENGTH_TAG))
     conf->current_tag = DOWNLOADER_QUEUE_LENGTH_ID;
   else if (!strcmp(name, CONNECT_TIMEOUT_TAG))
@@ -113,8 +116,6 @@ bassa_start_tag_handler(void *udata, char *name, char **attr)
     }
   else if (!strcmp(name, REPOSITORY_PATH_TAG))
     conf->current_tag = REPOSITORY_PATH_ID;
-  else if (!strcmp(name, REPOSITORY_URL_PREFIX_TAG))
-    conf->current_tag = REPOSITORY_URL_PREFIX_ID;
 	
   if (!strcmp(name, MODULES_TAG))
     {
@@ -149,6 +150,19 @@ bassa_stop_tag_handler(void *udata, char *name)
       conf->cfgcol->modconf_list = bassa_list_add (conf->cfgcol->modconf_list, 
 						     (void*)conf->cfgcol->out_list);
       conf->cfgcol->out_list = NULL;
+      /*bassa_list *l = conf->cfgcol->modconf_list;
+      while (l)
+        {
+          printf (">Name: %s\n", ((bassa_module_conf*)(l->list_data))->name);
+          printf (">Len : %i\n", strlen(((bassa_module_conf*)(l->list_data))->name));
+          printf (">Module: %s\n", ((bassa_module_conf*)(l->list_data))->path);
+          printf (">Len : %i\n", strlen(((bassa_module_conf*)(l->list_data))->path));
+          printf (">Config: %s\n", ((bassa_module_conf*)(l->list_data))->modconf);
+          if (((bassa_module_conf*)(l->list_data))->modconf)
+            printf (">Len : %i\n", strlen(((bassa_module_conf*)(l->list_data))->modconf));
+          printf ("\n\n");
+          l = l->next;
+        }*/
     }
   conf->current_tag = -1;
 }
@@ -372,14 +386,6 @@ bassa_setup_repository_configuration (bassa_conf *conf, char *s, int len)
 	bassa_assemble_configuration (conf->repocfg->repo_path, s, len);
 #ifdef DEBUG
       printf ("REPOSITORY_PATH: %s\n", conf->repocfg->repo_path);
-#endif //DEBUG
-    }
-  else if (conf->current_tag == REPOSITORY_URL_PREFIX_ID)
-    {
-      conf->repocfg->url_prefix =
-	bassa_assemble_configuration (conf->repocfg->url_prefix, s, len);
-#ifdef DEBUG
-      printf ("REPOSITORY_URL_PREFIX: %s\n", conf->repocfg->url_prefix);
 #endif //DEBUG
     }
 }

@@ -1,4 +1,7 @@
-#define _GNU_SOURCE
+/***************************************************************************
+ *   Copyright (C) 2007 by wathsala vithanage   *
+ *   wvi@ucsc.cmb.ac.lk   *
+ ***************************************************************************/
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -56,7 +59,8 @@ bassa_notify_metavideo (bassa_video2flv *v2f)
   if (!curl_handle)
     return -1;
   bassa_setopts (curl_handle, post, last, FORM_NAME,
-		      xml_buffer, CONTENT_TYPE, v2f->notifyurl, 20);
+		 xml_buffer, CONTENT_TYPE, v2f->notifyurl, 20,
+		 v2f->http_proxy);
   int perform, times;
   perform = 0;
   long int round_connect_timeout, sleep_time;
@@ -74,7 +78,8 @@ bassa_notify_metavideo (bassa_video2flv *v2f)
 	  sleep_time =
 	    (long int)(RETRY_GAP_MICROS / (v2f->maxtries - times));
 	  bassa_setopts (curl_handle, post, last, FORM_NAME, xml_buffer,
-			      CONTENT_TYPE, v2f->notifyurl, v2f->timeout);
+			 CONTENT_TYPE, v2f->notifyurl, v2f->timeout,
+			 v2f->http_proxy);
 #ifdef DEBUG
 	  printf ("CONNECT_TIMEOUT: %li\n", round_connect_timeout);
 	  printf ("SLEEP_TIME_GAP: %li\n", sleep_time);
@@ -102,7 +107,8 @@ bassa_notify_metavideo (bassa_video2flv *v2f)
 
 void 
 bassa_setopts (CURL *curl_handle, struct curl_httppost *post, struct curl_httppost *last, 
-	       char *form_name, char *xml_buffer, char *content_type, char *url, int con_timeout)
+	       char *form_name, char *xml_buffer, char *content_type, char *url, int con_timeout,
+	       char *proxy)
 {
   curl_formadd (&post, &last, CURLFORM_COPYNAME, form_name,
 		     CURLFORM_COPYCONTENTS, xml_buffer,
@@ -110,7 +116,7 @@ bassa_setopts (CURL *curl_handle, struct curl_httppost *post, struct curl_httppo
 		     content_type, CURLFORM_END);
   curl_easy_setopt (curl_handle, CURLOPT_URL, url);
   curl_easy_setopt (curl_handle, CURLOPT_HTTPPOST, post);
-  curl_easy_setopt (curl_handle, CURLOPT_PROXY, getenv("http_proxy"));
+  curl_easy_setopt (curl_handle, CURLOPT_PROXY, proxy);
   curl_easy_setopt (curl_handle, CURLOPT_CONNECTTIMEOUT, con_timeout);
 }
 
@@ -167,6 +173,7 @@ bassa_video2flv_parse (bassa_video2flv *v2f, char *conf)
   char *audio_bitrate = NULL;
   char *video_size = NULL;
   char *meta_repo = NULL;
+  char *http_proxy = NULL;
 
   cfg_opt_t opts[] = {
     CFG_SIMPLE_STR("notify_url", &notifyurl),
@@ -178,7 +185,8 @@ bassa_video2flv_parse (bassa_video2flv *v2f, char *conf)
     CFG_SIMPLE_STR("sample_freq", &sample_freq),
     CFG_SIMPLE_STR("audio_bitrate", &audio_bitrate),
     CFG_SIMPLE_STR("video_size", &video_size),
-    CFG_SIMPLE_STR("meta_repo", &meta_repo)
+    CFG_SIMPLE_STR("meta_repo", &meta_repo),
+    CFG_SIMPLE_STR("http_proxy", &http_proxy)
   };
   cfg_t *cfg;
   cfg = cfg_init (opts, 0);
@@ -198,6 +206,7 @@ bassa_video2flv_parse (bassa_video2flv *v2f, char *conf)
   v2f->ab = audio_bitrate;
   v2f->size = video_size;
   v2f->metarepo = meta_repo;
+  v2f->http_proxy = http_proxy;
   cfg_free (cfg);
 }
 
@@ -209,11 +218,11 @@ bassa_video_convert (void *v2f)
     return NULL;
   bassa_video2flv *xv2f = (bassa_video2flv*)v2f;
   char *filename = xv2f->filename;
-  char *name_only = bassa_file_trim_extension(filename);
-  int new_name_len = strlen(name_only)+strlen(FLV_EXT);
-  char *new_name = (char*)malloc(new_name_len + 1);
-  memset(new_name, (int)'\0', new_name_len + 1);
-  strncpy(new_name, name_only,strlen(name_only)) ;
+  int new_name_len = strlen(filename)+strlen(FLV_EXT)+2;
+  char *new_name = (char*)malloc(new_name_len);
+  memset(new_name, (int)'\0', new_name_len);
+  strncpy(new_name, filename,strlen(filename));
+  strcat(new_name, ".");
   strcat(new_name, FLV_EXT);
   char *flv_name = strdup(bassa_file_get_name (new_name));
   int flv_path_len = strlen(flv_name) + strlen(xv2f->metarepo) + 1;
@@ -222,8 +231,6 @@ bassa_video_convert (void *v2f)
   strcpy (flv_path, xv2f->metarepo);
   strcat (flv_path, flv_name);
   xv2f->meta_filename = flv_path;
-  if (name_only)
-    free(name_only);
   if (new_name)
     free(new_name);
   if (flv_name)
@@ -239,7 +246,7 @@ bassa_video_convert (void *v2f)
       stdout_fd = dup2 (null_fd, stdout_fd);
       stderr_fd = dup2 (null_fd, stderr_fd);
       stdin_fd = dup2 (null_fd, stdin_fd);
-
+#else
       //Dump parameters
       printf ("%s", FLV_MAKER);
       printf (" %s %s", FLV_MAKER_INPUT, filename);

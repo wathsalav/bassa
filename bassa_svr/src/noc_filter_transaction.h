@@ -157,6 +157,9 @@
 //Default connect_timeout 
 #define CONNECT_TIMEOUT 20
 
+//Externs 
+extern char *sys_proxy;
+
 typedef unsigned int flag_t;
 
 typedef struct
@@ -183,7 +186,7 @@ typedef struct
 
 
 bassa_transaction*
-bassa_transaction_new(char *url, char *local_name, long long size, char *http_proxy);
+bassa_transaction_new(char *url, char *local_name, long long size/*, char *http_proxy*/);
 
 int 
 bassa_transaction_download(bassa_transaction *transaction);

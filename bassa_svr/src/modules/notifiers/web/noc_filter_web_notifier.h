@@ -1,3 +1,8 @@
+/***************************************************************************
+ *   Copyright (C) 2007 by wathsala vithanage   *
+ *   wvi@ucsc.cmb.ac.lk   *
+ ***************************************************************************/
+
 #ifndef MOD_WEBNOT_H
 #define MOD_WEBNOT_H
 
@@ -10,12 +15,14 @@
 #define DOWNLOAD_FAIL_STAT_STR "failed"
 
 #define NOTIFICATION_XML "<bassa>\
+<cache_notification>\
 <file_name>%s</file_name>\
 <status>%s</status>\
 <origin_url>%s</origin_url>\
 <cache_url>%s</cache_url>\
 <server_response>%i</server_response>\
 <size>%lli</size>\
+</cache_notification>\
 </bassa>\n\r"
 
 #define RETRY_GAP_MICROS 1000*1000*2
@@ -37,6 +44,7 @@ typedef struct
   int server_response;
   unsigned long long size;
   char *cache_url;       //Deallocate this memory after using
+  char *http_proxy;
 }bassa_web_notification;
 
 
@@ -48,7 +56,8 @@ bassa_get_astatus(int status);
 
 void
 bassa_setopts (CURL *curl_handle, struct curl_httppost *post, struct curl_httppost *last, 
-		    char *form_name, char *xml_buffer, char *content_type, char *url, int con_timeout);
+		    char *form_name, char *xml_buffer, char *content_type, char *url, int con_timeout,
+		    char *proxy);
 
 int module_exec (void *x, char *conf);
 void module_exit (void *x);

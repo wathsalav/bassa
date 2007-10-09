@@ -35,5 +35,7 @@ int bassa_timer_start(bassa_timer *timer);
 
 void bassa_timer_set_alarm(bassa_timer *timer, int hours, int mins, int seconds);
 
+void bassa_timer_sleep(time_t sec, long nsec);
+
 #endif //NOC_FILTER_TIMER
 
