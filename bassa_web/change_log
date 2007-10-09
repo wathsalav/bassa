@@ -1,0 +1,32 @@
+
+1/6/2007 GADisk-0.2 will be released
+10/4/2007 GADisk-0.1.1 released
+13/3/2007 GADisk-0.1 released
+
+gadisk-0.2
+* Added FlowPlayer for flv & swf streeming
+* new logo for gadisk and bassa
+* listing 10 pages at a time
+* extract filename from php query
+* search file name first, then  size or url 
+* xml.php removed. 
+* seperate info page
+* made new directory for css
+* comments table added to the database
+* comment box added for all files
+* ip column moved to downloads table and id,file_type column added into downlaods table
+
+GADisk-0.1.1
+* Automatic download for cached files.
+* No Ajax.
+* Retry / Ignore zero sized files.
+* search box coding seperated from normal file searching.
+* corrected bug on pending downloads.
+* New admin feature added - Query DB
+* able to sort search result
+* add field to keep first downloaded date
+
+TO DO
+* Add Web2 features.
+* Make interface more eye candy.
+
