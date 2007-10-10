@@ -10,23 +10,11 @@ USE $dbname
 EOS;
 $result=mysql_query($sql) or die (mysql_error());
 
-
-$sql=<<<EOS
-CREATE TABLE IF NOT EXISTS department (
-        dept_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-        name varchar(100) UNIQUE NOT NULL
-)
-EOS;
-$result=mysql_query($sql) or die (mysql_error());
-
 $sql=<<<EOS
 CREATE TABLE IF NOT EXISTS users (
 	email varchar(100) PRIMARY KEY NOT NULL,
 	name varchar(500) NOT NULL,
-	password varchar(100) NOT NULL,
-	dept_id INT,
-	INDEX (dept_id),
-	FOREIGN KEY (dept_id) REFERENCES department(dept_id)
+	password varchar(100) NOT NULL
 )
 EOS;
 $result=mysql_query($sql) or die (mysql_error());
