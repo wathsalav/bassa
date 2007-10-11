@@ -22,31 +22,7 @@ include 'files/navigation.php';
   <td><INPUT type="text" name="name" size="30"><br></td>
   </tr>
   <tr>
-  <td>Deparment / Unit</td>
-  <td><select name="dept" >
   <?php
-  /* Insert Department Details*/
-  $sql="SELECT dept_id,name FROM department";
-$result=mysql_query($sql);
-if (is_resource ($result)){
-  $num=mysql_numrows($result);
-  $i=0;
-  while ($i < $num) {
-    $my_id=mysql_result($result,$i,'dept_id');
-    $my_name=mysql_result($result,$i,'name');
-    echo "<option value='$my_id'>";
-    echo $my_name;
-    echo "</option>";
-    $i++;
-  }
- }
- else {
-   echo "Please Insert your departments details in to department table.<br/>";
-   echo "Please read README file";
- }
-echo "
-</select><br/></td>
-    </tr>
     <tr>
       <td><INPUT type='submit' name='submit' value='Submit Form' onclick='verify()'></td>
       <td><INPUT type='reset' name='reset'></td>
