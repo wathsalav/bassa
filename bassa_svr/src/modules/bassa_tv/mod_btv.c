@@ -150,7 +150,7 @@ bassa_tv_reader (void *arg)
   bassa_blockall_signals ();
   bassa_tv *btv = (bassa_tv*)arg;
   struct timespec ts;
-  ts.tv_sec = 600;
+  ts.tv_sec = btv->btv_timeout;
   ts.tv_nsec = 0; 
   mrss_t *data;
   mrss_item_t *item;
@@ -179,7 +179,6 @@ bassa_tv_reader (void *arg)
 	      break;
 	    }
 	  mrss_options_free (options);
-
 	  //Setup channel
 	  int cdesclen = ((data->description)? strlen (data->description): 0) + BTV_GET_CDATALEN;
 	  char *cdesc = (char*)malloc (cdesclen + 1);
@@ -316,7 +315,7 @@ bassa_tv_notify (bassa_tv *btv, char *msg)
     curl_easy_setopt (curl_handle, CURLOPT_PROXY, "");
   curl_easy_perform (curl_handle);
   curl_formfree (post);
-  curl_free (curl_handle);
+  curl_easy_cleanup (curl_handle);
   return;
 }
 

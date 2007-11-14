@@ -114,6 +114,7 @@ bassa_register_module (bassa_module_table *mod_tbl,
   mc->module_path = mod_path;
   mc->module_name = mod_name;
   mc->module_conf = modconf;
+
   //Open module to see whether it is a bassa module and to know it's region/execution point
   void *mod_hndl = dlopen (mc->module_path, TEST_BINDING);
   if (!mod_hndl)
