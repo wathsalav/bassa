@@ -16,6 +16,7 @@
 #include "noc_filter_file.h"
 
 #define SEPARATOR "/"
+#define SEPARATOR_CHAR '/'
 		 
 char *bassa_file_get_name(char *url)
 {

@@ -217,7 +217,7 @@ bassa_transaction_get_response (CURL* handle, curl_infotype type,
 	str [i] = data[i];
       str [size] = '\0';
 #ifdef DEBUG
-      printf ("HEADERS: %s\n", str);
+      printf ("HEADERS: %s\n", data);
 #endif //DEBUG
       if (!strcmp (str, HTTP_OK) || !strcmp (str, HTTP_OK_1_0))
 	{
@@ -296,6 +296,7 @@ bassa_transaction_get_response (CURL* handle, curl_infotype type,
 	  free (length);
 	  length = NULL;
 	}
+
       else if(!strncmp (str, HTTP_CONTENT_DISPOSITION, strlen (HTTP_CONTENT_DISPOSITION)))
 	{
 	  char *disposition = bassa_transaction_get_value (str, HTTP_CONTENT_DISPOSITION);
@@ -366,20 +367,34 @@ bassa_transaction_encode_url (bassa_transaction *t)
   char *encfile = NULL;
   if (IS_HTTP_PROTO(t->http_bf) || IS_HTTPS_PROTO(t->http_bf))
     {
-      encfile = curl_easy_escape (NULL, bassa_file_get_name(t->url), 0);
-      t->url_encoded = (char*)malloc(strlen(t->path) + strlen(encfile) + 1);
-      strcpy (t->url_encoded, t->path);
-      strcat (t->url_encoded, encfile);
+      if (t->url)
+        {
+          char *xfile_name = bassa_file_get_name(t->url);
+          //Hack to handle URLs in following formats respectively.
+	  //http://www.foo.com, (http://www.foo.org/ or http://www.foo.org/bar/
+          if (strcmp(t->path, "http://") && t->url[strlen(t->url)-1] != '/')
+            encfile = curl_easy_escape (NULL, xfile_name, 0);
+          if (encfile)
+            {
+              t->url_encoded = (char*)malloc(strlen(t->path) + strlen(encfile) + 1);
+              strcpy (t->url_encoded, t->path);
+              strcat (t->url_encoded, encfile);
+            }
+          else
+              t->url_encoded = t->url;
+        }
     }
   else
     {
       t->url_encoded = t->url;
     }
+/*
   if (encfile)
     {
-      curl_free (encfile);
+      //curl_free (encfile);
       encfile = NULL;
     }
+*/
 }
 
 char*
@@ -520,7 +535,7 @@ bassa_transaction_prp_reinit (bassa_transaction *transaction, char *url, char *l
 	}
       if (transaction->url_encoded)
         {
-          curl_free (transaction->url_encoded);
+          //curl_free (transaction->url_encoded);
           bassa_transaction_encode_url(transaction);
         }
     }
