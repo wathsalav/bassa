@@ -161,3 +161,4 @@ long long bassa_file_get_size (char *file_name)
   else
     return -1;
 }
+

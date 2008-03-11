@@ -120,7 +120,6 @@ main (int argc, char *argv[])
   signal (SIGPIPE, bassa_sigpipe_handler);
   struct bassa_optstruct *opts = bassa_getopts (argc, argv);
   conf = bassa_parse_configuration (opts->config_file);
-  
   //Set global values
   bassa_register_globals(conf);
   if (!conf)
@@ -132,6 +131,7 @@ main (int argc, char *argv[])
   
   bmt = bassa_module_table_new ();
   bassa_list *modconflist = conf->cfgcol->modconf_list;
+  
   while (modconflist)
     {
       bassa_module_conf *bmc = modconflist->list_data;

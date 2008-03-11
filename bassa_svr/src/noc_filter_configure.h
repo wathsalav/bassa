@@ -14,6 +14,7 @@
 #define DOWNLOADER_CONF_MODULE 1
 #define REPOSITORY_CONF_MODULE 2
 #define MODULE_CONF_MODULE 3
+#define DATABASE_CONF_MODULE 4
 
 //This is the server section..
 #define BASSA_CONF_ID 0
@@ -83,6 +84,19 @@
 #define MODULE_CONF_ID 29
 #define MODULE_CONF_TAG "modconf"
 
+//This is the database section
+#define DATABASE_ID 30
+#define DATABASE_TAG "database"
+#define DATABASE_NAME_ID 31
+#define DATABASE_NAME_TAG "db_name"
+#define DATABASE_HOST_ID 32
+#define DATABASE_HOST_TAG "db_host"
+#define DATABASE_PORT_ID 33
+#define DATABASE_PORT_TAG "db_port"
+#define DATABASE_USER_ID 34
+#define DATABASE_USER_TAG "db_user"
+#define DATABASE_PASSWD_ID 35
+#define DATABASE_PASSWD_TAG "db_passwd"
 
 #define XML_READER_BUFFER_SIZE 512
 
@@ -135,13 +149,23 @@ typedef struct
 
 typedef struct
 {
+  char* db_name;
+  char* db_host;
+  char* db_port;
+  char* db_user;
+  char* db_passwd;
+}bassa_db_conf;
+
+typedef struct
+{
   int current_tag;                /*The currentXML tag read by expat*/
   int current_config_module;      /*The current section we are in, server|repository etc..*/
   int current_level;
   bassa_server_conf *svrcfg;      /*Pointer to the server configuration object*/
   bassa_downloader_conf *dlcfg;   /*Pointer to the downloader configuration object*/
   bassa_repository_conf *repocfg; /*Pointer to the repository configuration object*/
-  bassa_conf_collection *cfgcol;  /*Pointer to the authentication configuration object*/
+  bassa_conf_collection *cfgcol;  /*Pointer to the module configuration object*/
+  bassa_db_conf *dbcfg;		  /*Pointer to the database configuration object*/
 }bassa_conf;
 
 /**
@@ -201,11 +225,21 @@ void
 bassa_repository_conf_delete(bassa_repository_conf *conf);
 
 /**
- * Create a new authentication configuration object
- * @return The newly created authentication configuration object.
+ * Create a new configuration collection object
+ * @return The newly created configuration collection object.
  */
 bassa_conf_collection*
 bassa_conf_collection_new();
+
+/**
+ * Create a new database object
+ * @return The newly created database object
+ */
+bassa_db_conf*
+bassa_db_conf_new();
+
+void
+bassa_db_conf_delete(bassa_db_conf *conf);
 
 /**
  * Delete an authentication configuration object
@@ -237,6 +271,9 @@ bassa_setup_repository_configuration (bassa_conf*, char*, int);
 
 void
 bassa_setup_module_configuration (bassa_conf*, char*, int);
+
+void
+bassa_setup_database_configuration (bassa_conf*, char*, int);
 
 bassa_conf*
 bassa_parse_configuration (char*);

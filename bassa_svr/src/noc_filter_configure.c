@@ -45,6 +45,14 @@ bassa_repository_conf_new()
   return rc;
 }
 
+bassa_db_conf*
+bassa_db_conf_new()
+{
+  bassa_db_conf *dbc =
+    (bassa_db_conf*)malloc(sizeof(bassa_db_conf));
+  return dbc;
+}
+
 bassa_conf_collection*
 bassa_conf_collection_new()
 {
@@ -102,6 +110,8 @@ bassa_start_tag_handler(void *udata, char *name, char **attr)
     conf->current_tag = MAX_TRIES_ID;
   else if (!strcmp(name, MONITOR_PROGRESS_TAG))
     conf->current_tag = MONITOR_PROGRESS_ID;
+  else if (!strcmp(name, DATABASE_TAG))
+    conf->current_tag = DATABASE_ID;
   else if (!strcmp(name, DOWNLOADER_QUEUE_LENGTH_TAG))
     conf->current_tag = DOWNLOADER_QUEUE_LENGTH_ID;
   else if (!strcmp(name, CONNECT_TIMEOUT_TAG))
@@ -139,6 +149,21 @@ bassa_start_tag_handler(void *udata, char *name, char **attr)
     conf->current_tag = MODULE_PATH_ID;
   else if (!strcmp(name, MODULE_CONF_TAG))
     conf->current_tag = MODULE_CONF_ID;
+
+  if (!strcmp(name, DATABASE_TAG))
+    {
+      conf->current_tag = DATABASE_ID;
+      conf->current_config_module = DATABASE_CONF_MODULE;
+      conf->dbcfg = bassa_db_conf_new();
+    }
+  else if (!strcmp(name, DATABASE_NAME_TAG))
+    conf->current_tag = DATABASE_NAME_ID;
+  else if (!strcmp(name, DATABASE_HOST_TAG))
+    conf->current_tag = DATABASE_HOST_ID;
+  else if (!strcmp(name, DATABASE_USER_TAG))
+    conf->current_tag = DATABASE_USER_ID;
+  else if (!strcmp(name, DATABASE_PASSWD_TAG))
+    conf->current_tag = DATABASE_PASSWD_ID;
 }
 
 void
@@ -185,6 +210,9 @@ bassa_conf_cdata_handler (void *udata, char *s, int len)
       break;
     case MODULE_CONF_MODULE :
       bassa_setup_module_configuration (conf, s, len);
+      break;
+    case DATABASE_CONF_MODULE :
+      bassa_setup_database_configuration (conf, s, len);
       break;
     }
 }
@@ -387,6 +415,36 @@ bassa_setup_repository_configuration (bassa_conf *conf, char *s, int len)
 #ifdef DEBUG
       printf ("REPOSITORY_PATH: %s\n", conf->repocfg->repo_path);
 #endif //DEBUG
+    }
+}
+
+void
+bassa_setup_database_configuration (bassa_conf *conf, char *s, int len)
+{
+  if (conf->current_tag == DATABASE_NAME_ID)
+    {
+      conf->dbcfg->db_name =
+	bassa_assemble_configuration (conf->dbcfg->db_name, s, len);
+    }
+  else if (conf->current_tag == DATABASE_HOST_ID)
+    {
+      conf->dbcfg->db_host =
+	bassa_assemble_configuration (conf->dbcfg->db_host, s, len);
+    }
+  else if (conf->current_tag == DATABASE_PORT_ID)
+    {
+      conf->dbcfg->db_port =
+        bassa_assemble_configuration (conf->dbcfg->db_port, s, len);
+    }
+  else if (conf->current_tag == DATABASE_USER_ID)
+    {
+      conf->dbcfg->db_user = 
+        bassa_assemble_configuration (conf->dbcfg->db_user, s, len);
+    }
+  else if (conf->current_tag == DATABASE_PASSWD_ID)
+    {
+      conf->dbcfg->db_passwd =
+        bassa_assemble_configuration (conf->dbcfg->db_passwd, s, len);
     }
 }
 
