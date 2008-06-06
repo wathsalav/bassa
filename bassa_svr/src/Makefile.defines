@@ -1,0 +1,15 @@
+## common defines for Makefiles for the gsoap samples
+##
+SOAP=soapcpp2
+
+SOAP_FLAGS=-SLcxt2
+SOAP_INFILE=bassa_ws.h
+SOAP_NS_DEF=bassasoap.nsmap bassasoap.wsdl
+SOAP_H_FILES=soapH.h soapStub.h 
+
+SOAP_C_CORE=soapC.c
+SOAP_C_SERVER=soapServer.c $(SOAP_C_CORE)
+SOAP_C_LIB=libgsoap.a
+SOAP_C_LIB_CK=libgsoapck.a
+SOAP_C_LIB_SSL=libgsoapssl.a
+

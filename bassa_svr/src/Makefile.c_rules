@@ -1,0 +1,13 @@
+## common Makefile rules for building the C - soap samples
+##
+
+SOAP_C_SRC = $(SOAP_C_SERVER) $(SOAP_H_FILES) $(SOAP_NS)
+#$(SOAPHEADER)
+$(SOAP_C_SRC) :
+	$(SOAP) $(SOAP_FLAGS) $(SOAP_INFILE)
+
+LDADD = $(SOAP_C_LIB) $(SAMPLE_EXTRA_LIBS)
+BUILT_SOURCES = $(SOAP_C_SRC) 
+
+
+

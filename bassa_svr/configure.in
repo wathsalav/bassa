@@ -1,0 +1,22 @@
+AC_INIT
+AC_CONFIG_SRCDIR([configure.in])
+AM_CONFIG_HEADER(config.h)
+AM_INIT_AUTOMAKE(bassa, 0.1, wvi@ucsc.cmb.ac.lk)
+
+AC_PROG_CC
+AC_PROG_LIBTOOL
+
+# Checks for libraries.
+
+# Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS([stdlib.h string.h unistd.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+
+# Checks for library functions.
+AC_FUNC_MALLOC
+AC_TYPE_SIGNAL
+AC_CHECK_FUNCS([alarm])
+
+AC_OUTPUT(Makefile src/Makefile src/modules/Makefile src/modules/notifiers/Makefile src/modules/notifiers/web/Makefile src/modules/examples/Makefile src/modules/meta_content/Makefile src/modules/meta_content/video2flv/Makefile src/modules/mime/Makefile src/modules/anti_collision/Makefile src/modules/crypt/Makefile src/modules/bassa_tv/Makefile src/modules/meta_content/video2thumb/Makefile)
