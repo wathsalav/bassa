@@ -102,14 +102,10 @@ void *
 bassa_sched_downloader_loop (void *param)
 {
   bassa_blockall_signals ();
-  int os, ot;
-  bassa_push_cleaner(bassa_sched_downloader_cleanup_loop, NULL);
   while (1)
-    {    
-      bassa_enable_async_cancel(&os, &ot);
+    {
       if (nfs->bassa_downloader_count < nfs->bassa_max_downloaders)
         {
-          bassa_disable_cancel (&os, &ot);
           bassa_mutex user_lock, count_lock;
           bassa_mutex_lock (&user_lock);
 //////////////////////////

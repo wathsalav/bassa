@@ -78,15 +78,16 @@ int bassa_db_queue(bassa_irequest *irq);
 
 int bassa_db_update_status(bassa_irequest *irq);
 
+bassa_object* bassa_db_getpending();
+
 int bassa_update_hits(char *origin_url);
 	
 int bassa_delete_file(int file_id);
+
 
 bassa_object_set *bassa_list_all(int result_start);
 
 bassa_object_set *bassa_search_file(char *file_name, int result_start, int sort_type);
 
 char *bassa_db_get_file_status(int id);
-
-int bassa_db_set_local_url(int id, char *local_url);
 
