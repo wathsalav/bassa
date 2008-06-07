@@ -160,6 +160,8 @@
 #endif
 //Default connect_timeout 
 #define CONNECT_TIMEOUT 20
+//Defailt write size in bytes
+#define WRITE_SIZE 1024
 
 //Externs 
 extern char *sys_proxy;
@@ -226,5 +228,9 @@ bassa_transaction_set_http_resume (bassa_transaction *transaction, int current_s
 void
 bassa_transaction_prp_reinit (bassa_transaction *transaction, char *url, char *local_name, 
 			  long long size, char *http_proxy);
+
+size_t 
+bassa_transaction_fwriter (void *ptr, size_t size, 
+			  size_t nmemb, void *stream);
 #endif
 

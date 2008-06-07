@@ -102,30 +102,30 @@ bassa_transaction_download (bassa_transaction * transaction)
   for (num_tries = 0; num_tries < transaction->max_tries; num_tries++)
     {
       if ( current_size > 0 && GET_PROTO(transaction->http_bf) == HTTP_PROTO_FLAG)
-	{
+		{
 #ifdef DEBUG
-	  printf ("Trying %i time(s)...\n", num_tries);
+		  printf ("Trying %i time(s)...\n", num_tries);
 #endif //DEBUG
-	  bassa_transaction_set_http_resume (transaction, current_size);
-	}
+	  	  bassa_transaction_set_http_resume (transaction, current_size);
+		}
       else if (GET_PROTO(transaction->http_bf) == HTTP_PROTO_FLAG)
-	{
+		{
 #ifdef DEBUG
-	  printf ("Trying %i time(s)...\n", num_tries);
+	  	  printf ("Trying %i time(s)...\n", num_tries);
 #endif //DEBUG
-	  bassa_transaction_set_http_init (transaction);
-	}
+	  	  bassa_transaction_set_http_init (transaction);
+		}
       status = curl_easy_perform (transaction->curl_handle);
 #ifdef DEBUG
       printf ("CURLcode %i\n", status);
 #endif //DEBUG
       if (status)
-	{
-	  usleep (sleep_time);
-	  continue;
-	}
+		{
+	  	  usleep (sleep_time);
+	  	  continue;
+		}
       else
-	break;
+		break;
     }
   fclose (transaction->local_file);
   /*if (transaction->disposition_type == HTTP_CONTENT_DISP_ATCHMNT_ID)
@@ -163,6 +163,8 @@ bassa_transaction_open(bassa_transaction  *transaction)
       perror("FOPEN");
       return -1;
     }
+  curl_easy_setopt (transaction->curl_handle, CURLOPT_WRITEFUNCTION, 
+  					bassa_transaction_fwriter);
   curl_easy_setopt (transaction->curl_handle, CURLOPT_WRITEDATA, transaction->local_file);
   return 0;
 }
@@ -446,6 +448,16 @@ bassa_transaction_set_http_resume (bassa_transaction *transaction, int current_s
       fseek (transaction->local_file, current_size, SEEK_SET);
     }
   bassa_reset_cancel (&os1, &ot1);
+}
+
+size_t 
+bassa_transaction_fwriter (void *ptr, size_t size, 
+			  size_t nmemb, void *stream)
+{
+	FILE *fs = (FILE*)stream;
+	size_t r = fwrite (ptr, size, nmemb, fs);
+	fflush (stream);
+	return r;
 }
 
 
