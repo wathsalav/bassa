@@ -6,6 +6,9 @@
  * Wathsala Vithanage
  */
 
+#ifndef BASSA_DB_H
+#define BASSA_DB_H
+
 #include <stdio.h>
 #include <string.h>
 #include <dbi/dbi.h>
@@ -59,8 +62,10 @@ typedef struct
 
 bassa_object* bassa_object_new(unsigned long int content_len);
 
-bassa_irequest* bassa_irequest_new(bassa_uri *uri, 
+bassa_irequest* bassa_irequest_new1(bassa_uri *uri, 
                                    unsigned long int content_len);
+                                   
+bassa_irequest* bassa_irequest_new2(bassa_object *bobj);
 
 void bassa_irequest_free(bassa_irequest *bir);
 
@@ -76,14 +81,13 @@ int bassa_db_shutdown();
 
 int bassa_db_queue(bassa_irequest *irq);
 
-int bassa_db_update_status(bassa_irequest *irq);
+int bassa_db_update_cache(bassa_irequest *irq);
 
-bassa_object* bassa_db_getpending();
+bassa_irequest* bassa_db_getpending();
 
 int bassa_update_hits(char *origin_url);
 	
 int bassa_delete_file(int file_id);
-
 
 bassa_object_set *bassa_list_all(int result_start);
 
@@ -91,3 +95,4 @@ bassa_object_set *bassa_search_file(char *file_name, int result_start, int sort_
 
 char *bassa_db_get_file_status(int id);
 
+#endif //BASSA_DB_H

@@ -108,9 +108,12 @@ main (int argc, char *argv[])
   bassa_exec_path (NULL, bmt, COR_REGION, COR_X);
   //Start active region modules
   bassa_exec_path (NULL, bmt, ACT_REGION, ACT_X);
+  //Initialise and start scheduler
+  bassa_sched *bsch = bassa_sched_new (conf);
+  bassa_sched_start (bsch);
   //Start web service
   bassa_ws_start(conf->svrcfg->server_port,NULL);
-  //bassa_modtab_delete (bmt);
+  bassa_modtab_delete (bmt);
   exit (0);
 }
 

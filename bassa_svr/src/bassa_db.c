@@ -21,9 +21,11 @@ bassa_object* bassa_object_new(unsigned long int content_len)
   return bobj;
 }
 
-bassa_irequest* bassa_irequest_new(bassa_uri *uri, 
+bassa_irequest* bassa_irequest_new1(bassa_uri *uri, 
                                    unsigned long int content_len)
 {
+	if (!uri)
+		return NULL;
   bassa_irequest *bir = (bassa_irequest*)malloc(sizeof(bassa_irequest));
   bir->buri = uri;
   bir->bobj = bassa_object_new (content_len);
@@ -58,6 +60,15 @@ bassa_irequest* bassa_irequest_new(bassa_uri *uri,
     (bir->bobj->origin_url = strdup(bir->buri->uri)):
     (bir->bobj->origin_url = NULL);
   return bir;
+}
+
+bassa_irequest* bassa_irequest_new2(bassa_object *bobj)
+{
+	bassa_irequest *bir = (bassa_irequest*)malloc(sizeof(bassa_irequest));
+	bir->bobj = bobj;
+	bir->ip = NULL;
+	bir->buri = NULL;
+	return bir;
 }
 
 void bassa_object_free(bassa_object *bobj)
@@ -124,7 +135,6 @@ int bassa_db_init()
   if (!db_conf->dbicfg)
     return BAD_CONF;
   conn = dbi_conn_new (db_conf->dbicfg->dbms);
-  const char *def = dbi_driver_get_name(dbi_conn_get_driver(conn));
 #ifdef DEBUG
   printf ("DBMS: %s\n", db_conf->dbicfg->dbms);
   printf ("DB Name: %s\n", db_conf->dbicfg->db_name);
@@ -183,7 +193,6 @@ int bassa_db_reinit()
       if (conn_stat)
 				return conn_stat;
     }
-  printf ("FUCKS\n");
   dbi_conn_select_db (conn, db_conf->dbicfg->db_name);
   return SUCCESS;
 }
@@ -214,7 +223,7 @@ int bassa_db_queue(bassa_irequest *irq)
   return SUCCESS;
 }
 
-int bassa_db_update_status(bassa_irequest *irq)
+int bassa_db_update_cache(bassa_irequest *irq)
 {
   if (!irq)
     return -1;
@@ -222,8 +231,10 @@ int bassa_db_update_status(bassa_irequest *irq)
     return -1;
   char *sql_query = NULL;
   dbi_result *dbres = NULL;
-  sql_query = "UPDATE cache_index SET object_url='%s', object_path='%s', status='%s' WHERE origin_url='%s'";
-  dbres = dbi_conn_queryf(conn, sql_query, irq->bobj->object_url, irq->bobj->object_path, irq->bobj->status);
+  sql_query = "UPDATE cache_index SET object_url='%s', object_path='%s', status='%s', content_length=%i WHERE origin_url='%s'";
+  dbres = dbi_conn_queryf(conn, sql_query, irq->bobj->object_url, 
+  												irq->bobj->object_path, irq->bobj->status, 
+  												irq->bobj->content_length, irq->bobj->origin_url);
   if(!dbres)
     return -1;
   else
@@ -231,49 +242,55 @@ int bassa_db_update_status(bassa_irequest *irq)
   return SUCCESS;
 }
 
-bassa_object* bassa_db_getpending()
+bassa_irequest* bassa_db_getpending()
 {
 	if (bassa_db_reinit())
     return NULL;
   char *sql_query = NULL;
-  char *temp_str = NULL;
+  const char *temp_str = NULL;
   dbi_result *dbres = NULL;
   bassa_object *bobj = NULL;
-  sql_query = "SELECT * FROM cache_index WHERE cache_index.status='P' LIMIT 1";
-  dbres = dbi_conn_queryf (conn, sql_query);
+  sql_query = "SELECT * FROM cache_index WHERE cache_index.status=\"P\" LIMIT 1";
+  dbres = dbi_conn_query (conn, sql_query);
   if (!dbres)
 		return NULL;
 	else
 		{
-			bobj = bassa_object_new (dbi_result_get_ulong(dbres, "content_length"));
-      temp_str = dbi_result_get_string (dbres, "origin_url");
-      if (temp_str)
-        bobj->origin_url = strdup (temp_str);
-      else
-        bobj->origin_url = NULL;
-      temp_str = dbi_result_get_string (dbres, "status");
-      if (temp_str)
-        bobj->status = strdup (temp_str);
-      else
-        bobj->status = NULL;
-      temp_str = dbi_result_get_string (dbres, "object_url");
-      if (temp_str)
-        bobj->object_url = strdup (temp_str);
-      else
-        bobj->object_url = NULL;
-      temp_str = dbi_result_get_string (dbres, "object_path");
-      if (temp_str)
-        bobj->object_path = strdup (temp_str);
-      else
-        bobj->object_path = NULL;
-      temp_str = dbi_result_get_string (dbres, "file_name");
-      if (temp_str)
-        bobj->file_name = strdup (temp_str);
-      else
-        bobj->file_name = NULL;
-      bobj->hits = dbi_result_get_ulong (dbres, "hits");
-      dbi_result_free (dbres);
-      return bobj;
+			if (dbi_result_next_row (dbres))
+				{
+					bobj = bassa_object_new (dbi_result_get_ulong(dbres, "content_length"));
+      		temp_str = dbi_result_get_string (dbres, "origin_url");
+      		if (temp_str)
+        		bobj->origin_url = strdup (temp_str);
+      		else
+        		bobj->origin_url = NULL;
+      		temp_str = dbi_result_get_string (dbres, "status");
+      		if (temp_str)
+        		bobj->status = strdup (temp_str);
+      		else
+        		bobj->status = NULL;
+      		temp_str = dbi_result_get_string (dbres, "object_url");
+      		if (temp_str)
+        		bobj->object_url = strdup (temp_str);
+      		else
+        		bobj->object_url = NULL;
+      		temp_str = dbi_result_get_string (dbres, "object_path");
+      		if (temp_str)
+        		bobj->object_path = strdup (temp_str);
+      		else
+        		bobj->object_path = NULL;
+      		temp_str = dbi_result_get_string (dbres, "file_name");
+      		if (temp_str)
+        		bobj->file_name = strdup (temp_str);
+      		else
+        		bobj->file_name = NULL;
+      		bobj->hits = dbi_result_get_ulong (dbres, "hits");
+      		dbi_result_free (dbres);
+      		bassa_irequest* bir = bassa_irequest_new2 (bobj);
+      		return bir;
+				}
+				dbi_result_free (dbres);
+				return NULL;
 		}
 }
 
@@ -330,7 +347,7 @@ bassa_object_set *bassa_search_file(char *file_name,
   bassa_object_set *bobjs = (bassa_object_set*)malloc(sizeof(bassa_object_set));
   bobjs->total = dbi_result_get_numrows (dbres);
   bobjs->offset = result_start;
-  char *temp_str = NULL;
+  const char *temp_str = NULL;
   while (dbi_result_next_row (dbres))
     {
       bobj = bassa_object_new (dbi_result_get_ulong(dbres, "content_length"));

@@ -18,64 +18,52 @@ bassa_transaction_new (bassa_irequest *bir)
 {
   if (bir && conf->repocfg->repo_path)
     {
-      int part_file_len = strlen (conf->repocfg->repo_path) +
-		          strlen (bir->bobj->file_name) + 
-			  strlen (DOWNLOAD_PART_EXT) + 2;
+      int part_file_len = strlen (bir->bobj->object_path) + 
+      										strlen (DOWNLOAD_PART_EXT) + 2;
       char *part_file = (char *) malloc (part_file_len);
-      strcpy (part_file, conf->repocfg->repo_path);
-      strcat (part_file, "/");
-      strcat (part_file, bir->bobj->file_name);
+      memset (part_file, (int)'\0', part_file_len);
+      strcpy (part_file, bir->bobj->object_path);
       strcat (part_file, DOWNLOAD_PART_EXT);
-      part_file[part_file_len - 1] = '\0';
-
-      int complete_file_len = strlen (conf->repocfg->repo_path) +
-		              strlen (bir->bobj->file_name) + 1;
-      char *complete_file = (char*)malloc(complete_file_len);
-      strcpy (complete_file, conf->repocfg->repo_path);
-      strcat (complete_file, "/");
-      strcat (complete_file, bir->bobj->file_name);
-      complete_file[complete_file_len - 1] = '\0';
 
       bassa_transaction *transaction = (bassa_transaction *) 
-	malloc (sizeof (bassa_transaction));
+																malloc (sizeof (bassa_transaction));
       transaction->birq = bir;
       transaction->http_proxy = conf->svrcfg->http_proxy;
       transaction->file_part = part_file;
-      transaction->file_complete = complete_file;
       transaction->header_list = NULL;
       transaction->curl_handle = curl_easy_init ();
       transaction->http_bf = 0;
       transaction->disposition_type = HTTP_CONTENT_DISP_ATCHMNT_ID;
       transaction->disposition_fname = NULL;
       //Set the protocol before encoding URL
-      if (strlen (HTTP_PROTO) < strlen (transaction->birq->buri->uri))
-	{
-	  if (!strncmp (HTTP_PROTO, transaction->birq->buri->uri, 
-			strlen (HTTP_PROTO)))
-	    {
-	      SET_PROTO(transaction->http_bf, HTTP_PROTO_FLAG);
-	    }
-	}
-      else if (strlen (HTTPS_PROTO) < strlen (transaction->birq->buri->uri))
-	{
-	  if (!strncmp (HTTPS_PROTO, transaction->birq->buri->uri, 
-			strlen (HTTPS_PROTO)))
-	    {
-	      SET_PROTO(transaction->http_bf, HTTP_PROTO_FLAG);
-	    }
-	}
-      else if (strlen (FTP_PROTO) < strlen (transaction->birq->buri->uri))
-	{
-	  if (!strncmp (FTP_PROTO, transaction->birq->buri->uri, 
-			strlen (FTP_PROTO)))
-	    {
-	      SET_PROTO(transaction->http_bf, FTP_PROTO_FLAG);
-	    }
-	}
+      if (strlen (HTTP_PROTO) < strlen (transaction->birq->bobj->origin_url))
+				{
+	  			if (!strncmp (HTTP_PROTO, transaction->birq->bobj->origin_url, 
+												strlen (HTTP_PROTO)))
+	    			{
+	      			SET_PROTO(transaction->http_bf, HTTP_PROTO_FLAG);
+	    			}
+				}
+      else if (strlen (HTTPS_PROTO) < strlen (transaction->birq->bobj->origin_url))
+				{
+	  			if (!strncmp (HTTPS_PROTO, transaction->birq->bobj->origin_url, 
+												strlen (HTTPS_PROTO)))
+	    			{
+	      			SET_PROTO(transaction->http_bf, HTTP_PROTO_FLAG);
+	    			}
+				}
+      else if (strlen (FTP_PROTO) < strlen (transaction->birq->bobj->origin_url))
+				{
+	  			if (!strncmp (FTP_PROTO, transaction->birq->bobj->origin_url, 
+												strlen (FTP_PROTO)))
+	    			{
+	      			SET_PROTO(transaction->http_bf, FTP_PROTO_FLAG);
+	    			}
+				}
       else
-	{
-	  SET_PROTO(transaction->http_bf, UNKNOWN_PROTO);
-	}
+				{
+	  			SET_PROTO(transaction->http_bf, UNKNOWN_PROTO);
+				}
       return transaction;
     }
   else
@@ -94,6 +82,7 @@ bassa_transaction_download (bassa_transaction * transaction)
 #endif //DEBUG
   int current_size = bassa_file_get_size (transaction->file_part);
 #ifdef DEBUG
+	printf ("Origin URL: %s\n", transaction->birq->bobj->origin_url);
   printf ("SIZE OF THE FILE: %i\n", current_size);
 #endif //DEBUG
   int status = 0; 
@@ -102,61 +91,65 @@ bassa_transaction_download (bassa_transaction * transaction)
   for (num_tries = 0; num_tries < transaction->max_tries; num_tries++)
     {
       if ( current_size > 0 && GET_PROTO(transaction->http_bf) == HTTP_PROTO_FLAG)
-		{
+				{
 #ifdef DEBUG
-		  printf ("Trying %i time(s)...\n", num_tries);
+		  		printf ("Trying %i time(s)...\n", num_tries);
 #endif //DEBUG
-	  	  bassa_transaction_set_http_resume (transaction, current_size);
-		}
+	  	  	bassa_transaction_set_http_resume (transaction, current_size);
+				}
       else if (GET_PROTO(transaction->http_bf) == HTTP_PROTO_FLAG)
-		{
+				{
 #ifdef DEBUG
-	  	  printf ("Trying %i time(s)...\n", num_tries);
+	  	  	printf ("Trying %i time(s)...\n", num_tries);
 #endif //DEBUG
-	  	  bassa_transaction_set_http_init (transaction);
-		}
+	  	  	//bassa_transaction_set_http_init (transaction);
+				}
       status = curl_easy_perform (transaction->curl_handle);
 #ifdef DEBUG
       printf ("CURLcode %i\n", status);
 #endif //DEBUG
       if (status)
-		{
-	  	  usleep (sleep_time);
-	  	  continue;
-		}
+				{
+	  	  	usleep (sleep_time);
+	  	  	continue;
+				}
       else
-		break;
+				break;
     }
   fclose (transaction->local_file);
   /*if (transaction->disposition_type == HTTP_CONTENT_DISP_ATCHMNT_ID)
     {
       rename (transaction->file_part, transaction->disposition_fname);
       }*/
-  rename (transaction->file_part, transaction->file_complete);
+  rename (transaction->file_part, transaction->birq->bobj->object_path);
   return status;
 }
 
 void
-bassa_transaction_delete (bassa_transaction * transaction)
+bassa_transaction_free (bassa_transaction * transaction)
 {
   if (transaction)
     {
       curl_easy_cleanup (transaction->curl_handle);
-      if (transaction->file_complete)
-	free (transaction->file_complete);
       if (transaction->file_part)
-	free (transaction->file_part);
+				free (transaction->file_part);
       if (transaction->header_list)
-	curl_slist_free_all (transaction->header_list);
+				curl_slist_free_all (transaction->header_list);
       if (transaction->disposition_fname)
-	free (transaction->disposition_fname);
+				free (transaction->disposition_fname);
+			if (transaction->birq)
+				bassa_irequest_free (transaction->birq);
       free (transaction);
+      	transaction = NULL;
     }
 }
 
 int 
 bassa_transaction_open(bassa_transaction  *transaction)
 {
+#ifdef DEBUG
+	printf ("bassa_transaction_OPEN\n");
+#endif //DEBUG
   transaction->local_file = fopen (transaction->file_part, "w+");
   if (!transaction->local_file)
     {
@@ -208,13 +201,13 @@ bassa_transaction_set_options (bassa_transaction *transaction,
 		    transaction->http_proxy);
   switch (status)
     {
-    case CURLE_PARTIAL_FILE:
-      curl_easy_setopt (transaction->curl_handle,
-			CURLOPT_HTTP_VERSION,
-			CURLOPT_IGNORE_CONTENT_LENGTH);
-      break;
-    default:
-      break;
+    	case CURLE_PARTIAL_FILE:
+      	curl_easy_setopt (transaction->curl_handle,
+													CURLOPT_HTTP_VERSION,
+													CURLOPT_IGNORE_CONTENT_LENGTH);
+      	break;
+    	default:
+      	break;
     }
 }
 
@@ -441,8 +434,8 @@ bassa_transaction_set_http_resume (bassa_transaction *transaction, int current_s
       memset(header, '\0', strlen(HTTP_RANGE_X_TO_END) + 18);
       sprintf (header, HTTP_RANGE_X_TO_END, current_size);
       if (!(transaction->header_list))
-	transaction->header_list = curl_slist_append (transaction->header_list, header);
-      free (header);
+				transaction->header_list = curl_slist_append (transaction->header_list, header);
+     	free (header);
       //Set curl options
       bassa_transaction_set_options (transaction, CONNECT_TIMEOUT, 0);
       fseek (transaction->local_file, current_size, SEEK_SET);

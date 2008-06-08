@@ -17,7 +17,6 @@
 #include "noc_filter_sched.h"
 #include "noc_filter_util.h"
 #include "noc_filter_file.h"
-
 #include "bassa_db.h"
 
 
@@ -38,7 +37,6 @@ bassa_sched_new (bassa_conf *conf)
   if (nfs->conf->dlcfg)
     seconds = nfs->conf->dlcfg->seconds;
   bassa_timer_set_alarm (nfs->timer, hours, minutes, seconds);
-  nfs->gqueue = bassa_queue_new ();
   if (nfs->conf->dlcfg->max_children)
     nfs->bassa_max_downloaders = nfs->conf->dlcfg->max_children;
   nfs->bassa_downloader_ids = NULL;
@@ -71,7 +69,6 @@ bassa_sigalarm_handler (int signum)
       bassa_timer_set_alarm (nfs->timer, hours, mins, secs);
       nfs->cpu_lock = bassa_shared_semaphore (nfs->cpu_lock);
       nfs->trigger = 1;
-      sleep (10);
       bassa_nowait_spawn (nfs->mtp, bassa_sched_downloader_loop, NULL);
     }
   else if (nfs->trigger == 1)
@@ -102,44 +99,25 @@ void *
 bassa_sched_downloader_loop (void *param)
 {
   bassa_blockall_signals ();
-  while (1)
+  //while (1)
     {
-      if (nfs->bassa_downloader_count < nfs->bassa_max_downloaders)
-        {
-          bassa_mutex user_lock, count_lock;
-          bassa_mutex_lock (&user_lock);
-//////////////////////////
-          //bassa_request *user = bassa_queue_dequeue (nfs->gqueue);
-	printf("ssssssssssssssssssssss\n");
-	  struct down_file *df = bassa_db_get_url();
-printf("testing\n");
-	  bassa_module_info *modinfo = bassa_module_info_new (get_conf(), get_bmt());
-	printf("aaaaaaaaaaaaaa %d\n",df->size);
-	//if(df != NULL){
-	  bassa_request *user = 
-	    bassa_request_new ("bassa", "email", 
-			       "", df->url,df->size , modinfo);
-	//}
-printf("ela\n");
-////////////////////////////////
-          bassa_mutex_unlock (&user_lock);
-          if (user)
-            {
-              bassa_mutex_lock (&count_lock);
-              nfs->bassa_downloader_count++;
-              bassa_mutex_unlock (&count_lock);
-              bassa_nowait_spawn (nfs->stp, bassa_sched_outop_thread, (void*)user);
-            }
-          bassa_reset_cancel (&os, &ot);
-          bassa_task_yield();
-        }
-      bassa_reset_cancel (&os, &ot);
-    }
-  bassa_pop_cleaner(0);
+      //if (nfs->bassa_downloader_count < nfs->bassa_max_downloaders)
+        //{
+	  			//Replace when working with modules
+	  			//bassa_module_info *modinfo = bassa_module_info_new (get_conf(), get_bmt());
+	  			bassa_irequest *bir = bassa_db_getpending();
+	  			bassa_transaction *ta = bassa_transaction_new (bir);
+	  			if (bir)
+	  				{
+	  					bassa_nowait_spawn (nfs->stp, bassa_sched_outop_thread, (void*)ta);
+          		bassa_task_yield();
+	  				}
+        //}
+    //}
   bassa_unblockall_signals ();
   return NULL;
 }
-
+/**
 void
 bassa_sched_downloader_cleanup_loop (void *param)
 {
@@ -196,95 +174,84 @@ bassa_sched_outop_thread_clean (void *param)
   printf ("BASSA_SCHED_OUTPUT_THREAD_CLEAN_DONE\n");
 #endif //DEBUG
 }
+**/
 
 void *
 bassa_sched_outop_thread (void *un)
 {
   bassa_block_signal (1, SIGALRM);
-  int os, ot;
-  bassa_mutex cbmut, pbmut;
-  //What if we cancel the thread while we are downloading, 
-  //we will have to enqueue user again. So push the appropriate
-  //cleanup handler which will enqueue the user back to the queue.
-  bassa_push_cleaner (bassa_sched_outop_thread_clean, un);
-  bassa_enable_async_cancel (&os, &ot);
-  bassa_request *user = (bassa_request*)un;
+  bassa_transaction *transaction = (bassa_transaction*)un;
   int status;
 #ifdef DEBUG
   printf ("BASSA_SCHED_OUTPUT_THREAD\n");
 #endif //DEBUG
+  //Replace when working with modules
   //Execution point POP_STORE@POP_REGION
-  bassa_exec_path (user->modinfo->popc, user->modinfo->modtab,
-		   POP_STORE, POP_REGION);
+  //bassa_exec_path (bobj->modinfo->popc, bobj->modinfo->modtab,
+	//	   POP_STORE, POP_REGION);
   //Set snetwork options for this transaction
-  bassa_transcation_set_network_opts (user->transaction, nfs->conf->dlcfg->connect_timeout,
+  bassa_transaction_open (transaction);
+  bassa_transcation_set_network_opts (transaction, nfs->conf->dlcfg->connect_timeout,
 				      nfs->conf->dlcfg->max_tries);
-  status = bassa_transaction_download (user->transaction);
- 
-  bassa_disable_cancel (&os, &ot);
+  status = bassa_transaction_download (transaction);
   
   if (!status)
     {
-      if (IS_HTTP_PROTO(user->transaction->http_bf) || 
-	  IS_HTTPS_PROTO(user->transaction->http_bf))
-	{
-	  if (IS_OK(user->transaction->http_bf) || 
-	      IS_NO_CONTENT(user->transaction->http_bf) ||
-	      IS_PARTIAL_CONTENT(user->transaction->http_bf))
-	    status = 0;
-	  else if (IS_BAD_REQUEST(user->transaction->http_bf) || 
-		   IS_UNAUTHORIZED(user->transaction->http_bf) || 
-		   IS_FORBIDDEN(user->transaction->http_bf) || 
-		   IS_NOT_FOUND(user->transaction->http_bf) ||
-		   IS_REQUEST_TIMEOUT(user->transaction->http_bf))
-	    {
-	      unlink (user->transaction->file_complete);
-	      status = 1;
-	    }
-	  else if (IS_INTERNAL_SERVER_ERROR(user->transaction->http_bf) ||
-		   IS_VERSION_NOT_SUPPORTED(user->transaction->http_bf) ||
-		   IS_SERVICE_UNAVAILABLE(user->transaction->http_bf))
-	    {
-	      unlink (user->transaction->file_complete);
-	      status = 1;
-	    }
-	  else
-	    {
-	      unlink (user->transaction->file_complete);
-	      status = 1;
-	    }
-	}
+      if (IS_HTTP_PROTO(transaction->http_bf) || 
+	  		IS_HTTPS_PROTO(transaction->http_bf))
+				{
+	  			if (IS_OK(transaction->http_bf) || 
+	      			IS_NO_CONTENT(transaction->http_bf) ||
+	      			IS_PARTIAL_CONTENT(transaction->http_bf))
+	    			{
+	    				status = 0;
+	    				transaction->birq->bobj->status = COMPLETED;
+	    			}
+	  			else if (IS_BAD_REQUEST(transaction->http_bf) || 
+		   						IS_UNAUTHORIZED(transaction->http_bf) || 
+		   						IS_FORBIDDEN(transaction->http_bf) || 
+		   						IS_NOT_FOUND(transaction->http_bf) ||
+		   						IS_REQUEST_TIMEOUT(transaction->http_bf))
+	    			{
+	      			unlink (transaction->birq->bobj->object_path);
+	      			status = 1;
+	      			transaction->birq->bobj->status = FAILED;
+	    			}
+	  			else if (IS_INTERNAL_SERVER_ERROR(transaction->http_bf) ||
+		   						IS_VERSION_NOT_SUPPORTED(transaction->http_bf) ||
+		   						IS_SERVICE_UNAVAILABLE(transaction->http_bf))
+	    			{
+	      			unlink (transaction->birq->bobj->object_path);
+	      			status = 1;
+	      			transaction->birq->bobj->status = FAILED;
+	    			}
+	  			else
+	    			{
+	      			unlink (transaction->birq->bobj->object_path);
+	      			status = 1;
+	      			transaction->birq->bobj->status = FAILED;
+	    			}
+				}
     }
   else
     {
-      unlink (user->transaction->file_complete);
+      unlink (transaction->birq->bobj->object_path);
       status = 1;
+      transaction->birq->bobj->status = FAILED;
     }
-  user->size = bassa_file_get_size (user->transaction->file_complete);
-  user->transaction->bassa_status = status;
+  transaction->birq->bobj->content_length = 
+  					bassa_file_get_size (transaction->birq->bobj->object_path);
+  transaction->bassa_status = status;
+  //Replace when working with modules
   //Synchronize pop context and transaction data
-  bassa_request_pop_sync (user);
+  //bassa_request_pop_sync (bobj);
   //Execution point POP_NOTIFY@POP_REGION
-////////////////////////replace
-  bassa_exec_path (user->modinfo->popc, user->modinfo->modtab,
-			POP_REGION, POP_NOTIFY);
-/////////////////////////////////////////////
-
-
-/*
+  //bassa_exec_path (bobj->modinfo->popc, bobj->modinfo->modtab,
+	//		POP_REGION, POP_NOTIFY);
   if(status==0)
-	bassa_db_update_status(user->url,"COMPLETED");
+		bassa_db_update_cache(transaction->birq);
   else
-	bassa_db_update_status(user->url, "ONQUEUE");
-
-*/
-
-//////////////////////////////
-  bassa_request_delete (un);
-  bassa_mutex_lock (&cbmut);
-  bassa_mutex_unlock (&cbmut);
-  bassa_task_yield ();
-	
+		bassa_db_update_cache(transaction->birq);
   //NOC_FILTER_SET_POOL should done after NOC_FILTER_TASK_UNSTOPABLE to avaoid lost updates
   pthread_t xtid = pthread_self ();
   int i = 0;
@@ -292,24 +259,18 @@ bassa_sched_outop_thread (void *un)
     {
       pthread_t td = (pthread_t)(nfs->stp->tasklets[i]);
       if (xtid == td)
-	{
-	  bassa_mutex_lock (&pbmut);
-	  nfs->stp->tasklets[i] = 0;
+				{
+					bassa_mutex *pbmut = bassa_mutex_new ();
+	  			bassa_mutex_lock (pbmut);
+	  			nfs->stp->tasklets[i] = 0;
           nfs->bassa_downloader_count--;
 #ifdef DEBUG
   printf ("DECREMENTED nfs->bassa_downloader_count: %i\n", nfs->bassa_downloader_count);
 #endif //DEBUG
-	  bassa_mutex_unlock (&pbmut);
-	  break;
-	}
+	  			bassa_mutex_unlock (pbmut);
+	 	 			break;
+				}
     }
-  //We no longer need cleanup handler, so pop it from the stack. But we should pop it
-  //after making task unstopable. This is because the time gap between poping cleanup handler and 
-  //making task unstopable will cause a lost update (since cancellation could occur during this gap).
-  bassa_reset_cancel (&os, &ot);
-  bassa_reset_cancel (&os, &ot);	
-  bassa_pop_cleaner (0);
-  bassa_sema_post (nfs->cpu_lock);
   return NULL;
 }
 
@@ -331,10 +292,7 @@ int bassa_cleaners_done (bassa_sched *nfs)
 
 void bassa_sigusr1_handler (int signum)
 {
-  printf ("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ %lu\n", bassa_task_id());
-#ifdef DEBUG
-  printf (">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Handling SIGUSR1\n");
-#endif //DEUG
+  printf (">%lu\n", bassa_task_id());
   return;
 }
 

@@ -196,7 +196,7 @@ int
 bassa_transaction_download(bassa_transaction *transaction);
 
 void 
-bassa_transaction_delete(bassa_transaction *transaction);
+bassa_transaction_free(bassa_transaction *transaction);
 
 int 
 bassa_transaction_open(bassa_transaction *transaction);

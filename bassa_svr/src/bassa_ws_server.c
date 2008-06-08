@@ -1,11 +1,13 @@
 #include <pthread.h> 
 #include <signal.h>
-
 #include <soapH.h>
+
 #include <bassa_ws_server.h>
- 
+#include <noc_filter_concur.h>
+
 int bassa_ws_start() 
 { 
+	//bassa_blockall_signals ();
   struct soap soap;
   soap_init(&soap); 
   soap.max_keep_alive = 100; // max keep-alive sequence 
@@ -38,6 +40,7 @@ int bassa_ws_start()
       bassa_nowait_spawn(NULL, bassa_ws_exec, (void*)tsoap); 
     }
   soap_done(&soap); // detach soap struct 
+  //bassa_unblockall_signals ();
   return 0; 
 } 
 

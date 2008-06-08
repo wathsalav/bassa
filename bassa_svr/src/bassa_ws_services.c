@@ -10,7 +10,7 @@
 int bassa__enqueue(struct soap *soap, struct bassa__request *r, char **response)
 {
 	bassa_uri *bu = bassa_uri_new(r->url);
-	bassa_irequest *bir = bassa_irequest_new(bu, r->content_length);
+	bassa_irequest *bir = bassa_irequest_new1(bu, r->content_length);
 	int ret = bassa_db_queue(bir);
   if (ret)
     *response = "FAIL: URL Exists";

@@ -10,7 +10,7 @@ bassa_SOURCES=noc_filter_file.h noc_filter_file.c\
 		   noc_filter_server.h noc_filter_server.c\
 		   noc_filter_messages.c noc_filter_repo.h noc_filter_repo.c main.c\
 		   noc_filter_concur.h noc_filter_concur.c noc_filter_configure.h noc_filter_configure.c\
-		   noc_filter_messages.h noc_filter_util.c\
+		   noc_filter_messages.h noc_filter_util.c noc_filter_sched.c\
 		   bassa_pop_context.h bassa_pop_context.c bassa_prp_context.h bassa_prp_context.c\
 		   bassa_module_manager.h bassa_module_manager.c bassa_module_info.h bassa_module_info.c\
 		   bassa_db.c bassa_ws_services.c bassa_ws_server.c bassa_uri.c $(SOAP_C_SRC)
