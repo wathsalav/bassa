@@ -99,7 +99,7 @@ void *
 bassa_sched_downloader_loop (void *param)
 {
   bassa_blockall_signals ();
-  //while (1)
+  while (1)
     {
       //if (nfs->bassa_downloader_count < nfs->bassa_max_downloaders)
         //{
@@ -109,14 +109,16 @@ bassa_sched_downloader_loop (void *param)
 	  			bassa_transaction *ta = bassa_transaction_new (bir);
 	  			if (bir)
 	  				{
+	  					nfs->bassa_downloader_count++;
 	  					bassa_nowait_spawn (nfs->stp, bassa_sched_outop_thread, (void*)ta);
           		bassa_task_yield();
 	  				}
         //}
-    //}
+    }
   bassa_unblockall_signals ();
   return NULL;
 }
+
 /**
 void
 bassa_sched_downloader_cleanup_loop (void *param)

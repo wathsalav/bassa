@@ -6,6 +6,7 @@
  * Wathsala Vithanage: wvi@ucsc.cmb.ac.lk
  */
 #include <bassa_db.h>
+#include <noc_filter_concur.h>
 
 bassa_object* bassa_object_new(unsigned long int content_len)
 {
@@ -175,25 +176,21 @@ int bassa_db_reinit()
     return BAD_CONF;
   if (!db_conf->dbicfg)
     return BAD_CONF;
+  bassa_mutex *bm = bassa_mutex_new ();
+  bassa_mutex_lock (bm);
   if (dbi_conn_ping (conn) == 0)
     {
-      conn = dbi_conn_new (db_conf->dbicfg->dbms);
-#ifdef DEBUG
-      const char *def = dbi_driver_get_name(dbi_conn_get_driver(conn));
-      printf ("Database: %s\n", def);
-      printf ("Database: %s\n", db_conf->dbicfg->dbms);
-      printf ("DB Name: %s\n", db_conf->dbicfg->db_name);
-#endif //DEBUG
-      dbi_conn_set_option (conn, "host", db_conf->dbicfg->db_host);
-      dbi_conn_set_option_numeric (conn, "port", db_conf->dbicfg->db_port);
-      dbi_conn_set_option (conn, "username", db_conf->dbicfg->db_user);
-      dbi_conn_set_option (conn, "password", db_conf->dbicfg->db_passwd);
-      dbi_conn_set_option (conn, "encoding", "UTF-8");
       int conn_stat = dbi_conn_connect (conn);
+      dbi_conn_select_db (conn, db_conf->dbicfg->db_name);
       if (conn_stat)
-				return conn_stat;
+      	{
+      		bassa_mutex_unlock (bm);
+      		bassa_mutex_free (bm);
+					return conn_stat;
+      	}
     }
-  dbi_conn_select_db (conn, db_conf->dbicfg->db_name);
+  bassa_mutex_unlock (bm);
+  bassa_mutex_free (bm);
   return SUCCESS;
 }
 
@@ -227,7 +224,7 @@ int bassa_db_update_cache(bassa_irequest *irq)
 {
   if (!irq)
     return -1;
-  if (bassa_db_reinit())
+	if (bassa_db_reinit())
     return -1;
   char *sql_query = NULL;
   dbi_result *dbres = NULL;
@@ -253,7 +250,9 @@ bassa_irequest* bassa_db_getpending()
   sql_query = "SELECT * FROM cache_index WHERE cache_index.status=\"P\" LIMIT 1";
   dbres = dbi_conn_query (conn, sql_query);
   if (!dbres)
-		return NULL;
+		{
+			return NULL;
+		}
 	else
 		{
 			if (dbi_result_next_row (dbres))
@@ -289,8 +288,8 @@ bassa_irequest* bassa_db_getpending()
       		bassa_irequest* bir = bassa_irequest_new2 (bobj);
       		return bir;
 				}
-				dbi_result_free (dbres);
-				return NULL;
+			dbi_result_free (dbres);
+			return NULL;
 		}
 }
 
@@ -298,7 +297,7 @@ int bassa_update_hits(char *origin_url)
 {
   if (!origin_url)
     return -1;
-  if (bassa_db_reinit())
+	if (bassa_db_reinit())
     return -1;
   char *sql_query = NULL;
   dbi_result *dbres = NULL;
@@ -336,7 +335,7 @@ bassa_object_set *bassa_search_file(char *file_name,
   else
     st = "ASC";
   sql_query = "SELECT * FROM cache_index WHERE origin_url LIKE '%%%s%%' OR file_name LIKE '%%%s%%' ORDER BY date_time %s LIMIT %i OFFSET %i";
-  if (bassa_db_reinit())
+	if (bassa_db_reinit())
     return NULL;
   dbres = dbi_conn_queryf(conn, sql_query, file_name, file_name, 
                           st, RESULT_SET_SIZE, result_start);
@@ -380,7 +379,7 @@ bassa_object_set *bassa_search_file(char *file_name,
       bobjs->bobj[count] = bobj;
       count++;
     }
-  //dbi_result_free (dbres);
+  dbi_result_free (dbres);
   return bobjs;
 }
 

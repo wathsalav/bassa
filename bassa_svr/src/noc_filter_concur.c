@@ -28,6 +28,15 @@ bassa_mutex* bassa_mutex_new ()
   return bm;
 }
 
+void bassa_mutex_free (bassa_mutex *bm)
+{
+	if (bm)
+		{
+			free (bm);
+			bm = NULL;
+		}
+}
+
 int bassa_block_signal (int num, ...)
 {
   va_list argptr;

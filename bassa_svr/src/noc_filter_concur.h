@@ -46,6 +46,8 @@ bassa_task_pool* bassa_task_pool_new (int max_tasklets);
 
 bassa_mutex* bassa_mutex_new ();
 
+void bassa_mutex_free (bassa_mutex *bm);
+
 int bassa_block_signal (int num, ...);
 
 int bassa_unblock_signal (int num, ...);
