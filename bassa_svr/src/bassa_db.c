@@ -450,11 +450,13 @@ bassa_object_set *bassa_search_file(bassa_db *dbd, char *file_name,
   else
     st = "ASC";
   sql_query = "SELECT * FROM cache_index WHERE origin_url LIKE '%%%s%%' OR file_name LIKE '%%%s%%' ORDER BY date_time %s LIMIT %i OFFSET %i";
-  printf (sql_query, st, RESULT_SET_SIZE, offset);
+#ifdef DEBUG
+  printf (sql_query, st, file_name, file_name, RESULT_SET_SIZE, offset);
   printf ("\n");
+#endif //DEBUG
   if (bassa_db_reinit(dbd))
     return NULL;
-  dbres = dbi_conn_queryf(dbd->conn, sql_query, 
+  dbres = dbi_conn_queryf(dbd->conn, sql_query, file_name, file_name,
                           st, RESULT_SET_SIZE, offset);
   if (!dbres)
     return NULL;
