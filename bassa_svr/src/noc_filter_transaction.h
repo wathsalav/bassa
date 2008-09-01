@@ -138,21 +138,21 @@
 //Set the HTTP status in a given bit feild
 #define SET_STATUS(bf, status)					\
   unsigned int macro_set_stat = ((unsigned int)status) << 19;	\
-  (bf) |= (macro_set_stat)
+  (*bf) |= (macro_set_stat)
 
 //Get the HTTP status in a given bit feild
 #define GET_STATUS(bf)				\
-  ((bf) & (HTTP_RESPONSE_MASK)) >> 19
+  ((*bf) & (HTTP_RESPONSE_MASK)) >> 19
 
 //Set the protocol type in a bit feild
 #define SET_PROTO(bf, proto)			\
   unsigned long int macro_set_proto = proto;	\
   macro_set_proto = macro_set_proto << 28;	\
-  (bf) |= (macro_set_proto)
+  (*bf) |= (macro_set_proto)
 
 //Get the protocol 
 #define GET_PROTO(bf)				\
-  ((bf) & (PROTOCOL_MASK)) >> 28
+  ((*bf) & (PROTOCOL_MASK)) >> 28
 
 //Tmie gap between retries
 #ifndef RETRY_GAP_MICROS
@@ -180,7 +180,7 @@ typedef struct
   unsigned int protocol_flag;
   long connect_timeout;
   int max_tries;
-  flag_t http_bf;
+  flag_t *http_bf;
   char* disposition_fname;
   int disposition_type;
   int bassa_status;

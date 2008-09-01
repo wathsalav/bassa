@@ -36,5 +36,10 @@ void bassa_file_set_max_size (int limit);
  */
 long long bassa_file_get_size (char *file_name);
 
+/**
+ * Return 0 if file path fname exists,
+ * otherwise return 1
+ */
+int bassa_transaction_fexist(char *fname);
 
 #endif //NOC_FILTER_FILE

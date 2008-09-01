@@ -22,14 +22,11 @@ typedef int (*bassa_scheduler_status)(void);
 typedef struct
 {
   bassa_timer_handler handler;
-  bassa_scheduler_status sched_state;
   int timeout_value;
   int do_repeate;
-  void *sched_data; //Used to refer a scheduler
 }bassa_timer;
 
-bassa_timer *bassa_timer_new(bassa_timer_handler handler, 
-			     bassa_scheduler_status sched_state, void *sched_data);
+bassa_timer *bassa_timer_new(bassa_timer_handler handler); 
 
 int bassa_timer_start(bassa_timer *timer);
 

@@ -19,19 +19,24 @@
 #define SUCCESS 0
 #define BAD_CONF -1
 #define DB_CREATION_ERROR -2
+#define BAD_DBD -3
 
-#define RESULT_SET_SIZE 10
+#define RESULT_SET_SIZE 5
 
-#define PENDING "P"
+#define PROCESSING "P"
+#define PENDING "Q"
 #define COMPLETED "C"
 #define FAILED "F"
 
 #define ASEND 0
 #define DESND 1
 
-dbi_conn conn;
-bassa_conf *db_conf;
 extern bassa_conf *conf;
+
+typedef struct
+{
+  dbi_conn conn;
+}bassa_db;
 
 typedef struct
 {
@@ -42,8 +47,9 @@ typedef struct
   char *object_path;
   char *file_name;
   unsigned long int hits;
-  long int date;
-  long int last_modi_date;
+  unsigned int proto_bf;
+  time_t date;
+  time_t last_modi_date;
 }bassa_object;
 
 typedef struct
@@ -56,6 +62,7 @@ typedef struct
 typedef struct
 {
   bassa_object* bobj[RESULT_SET_SIZE];
+  unsigned int object_limit;
   unsigned int total;
   unsigned int offset;
 }bassa_object_set;
@@ -73,26 +80,34 @@ void bassa_object_free(bassa_object *bobj);
 
 void bassa_object_set_free(bassa_object_set *bobjs);
 
-int bassa_db_init();
+bassa_db* bassa_db_init();
 
-int bassa_db_reinit();
+int bassa_db_reinit(bassa_db *dbd);
 
-int bassa_db_shutdown();
+int bassa_db_shutdown(bassa_db *dbd);
 
-int bassa_db_queue(bassa_irequest *irq);
+int bassa_db_queue(bassa_db *dbd, bassa_irequest *irq);
 
-int bassa_db_update_cache(bassa_irequest *irq);
+int bassa_db_update_cache(bassa_db *dbd, bassa_irequest *irq);
 
-bassa_irequest* bassa_db_getpending();
+bassa_irequest* bassa_db_getpending(bassa_db *dbd);
 
-int bassa_update_hits(char *origin_url);
+int bassa_db_try_getpending(bassa_db *dbd);
+
+int bassa_update_hits(bassa_db *dbd, char *origin_url);
+
+int bassa_update_status(bassa_db *dbd, char *origin_url, char *status);
 	
-int bassa_delete_file(int file_id);
+int bassa_delete_file(bassa_db *dbd, int file_id);
 
-bassa_object_set *bassa_list_all(int result_start);
+bassa_object_set *bassa_list_all(bassa_db *dbd, int offset, int sort_type);
 
-bassa_object_set *bassa_search_file(char *file_name, int result_start, int sort_type);
+bassa_object_set *bassa_list_latest(bassa_db *dbd, int offset);
 
-char *bassa_db_get_file_status(int id);
+bassa_object_set *bassa_search_file(bassa_db *dbd, char *file_name, int offset, int sort_type);
+
+char *bassa_db_get_file_status(bassa_db *dbd, int id);
+
+int bassa_invert_status(bassa_db *dbd, char *current, char *next);
 
 #endif //BASSA_DB_H

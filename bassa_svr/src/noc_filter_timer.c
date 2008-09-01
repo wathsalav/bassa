@@ -10,17 +10,17 @@
 #include <errno.h>
 #include <time.h>
 		
+#include <bassa_trigger.h>
 #include "noc_filter_timer.h"
 #include "noc_filter_concur.h"
 
+extern bassa_trigger *btrig;
+
 bassa_timer*
-bassa_timer_new(bassa_timer_handler handler, 
-		bassa_scheduler_status sched_state, void *sched_data)
+bassa_timer_new(bassa_timer_handler handler) 
 {
   bassa_timer *timer = (bassa_timer*)malloc(sizeof(bassa_timer));
   timer->handler = handler;
-  timer->sched_state = sched_state;
-  timer->sched_data = sched_data;
   signal (SIGALRM, timer->handler);
   return timer;
 }
@@ -70,3 +70,4 @@ void bassa_timer_sleep(time_t sec, long nsec)
 #endif //DEBUG
   nanosleep (&req, NULL);
 }
+

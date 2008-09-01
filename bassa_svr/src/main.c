@@ -16,12 +16,9 @@
 #include "noc_filter_file.h"
 #include "noc_filter_timer.h"
 #include "noc_filter_transaction.h"
-#include "noc_filter_server.h"
 #include "noc_filter_concur.h"
-#include "noc_filter_messages.h"
-#include "noc_filter_repo.h"
 #include "noc_filter_configure.h"
-#include "noc_filter_sched.h"
+#include "bassa_sched.h"
 #include "bassa_module_manager.h"
 
 #include "bassa_ws_server.h"
@@ -69,6 +66,11 @@ void bassa_register_globals (bassa_conf *conf);
  */
 void bassa_sigpipe_handler (int signum);
 
+/**
+ * Check and create database
+ */
+void bassa_database_check();
+
 int THREAD_COUNT;	 //Number of threads running
 int MAX_THREADS = 5;	 //Default maximum number of threads
 bassa_conf *conf;	 //Configuration data structure
@@ -90,16 +92,14 @@ main (int argc, char *argv[])
       exit (-1);
     }
   //Initialize database
-  if (bassa_db_init() < 0)
-    fprintf (stderr, 
-             "Error occured while initializing database\n");
+  bassa_database_check();
   //Create and load module table
   bmt = bassa_module_table_new ();
   bassa_list *modconflist = conf->cfgcol->modconf_list;
   while (modconflist)
     {
       bassa_module_conf *bmc = modconflist->list_data;
-      bassa_register_module (bmt,bmc->name, 
+      bassa_register_module (bmt,bmc->name,
 			     bmc->path, bmc->modconf);
       modconflist = modconflist->next;
     }
@@ -107,12 +107,12 @@ main (int argc, char *argv[])
   //Start core region modules
   bassa_exec_path (NULL, bmt, COR_REGION, COR_X);
   //Start active region modules
-  bassa_exec_path (NULL, bmt, ACT_REGION, ACT_X);
+  bassa_exec_path (NULL, bmt, ACT_REGION, ACT_X);  
+  //Start web service
+  bassa_nowait_spawn(NULL, bassa_ws_start, NULL);
   //Initialise and start scheduler
   bassa_sched *bsch = bassa_sched_new (conf);
   bassa_sched_start (bsch);
-  //Start web service
-  bassa_ws_start(conf->svrcfg->server_port,NULL);
   bassa_modtab_delete (bmt);
   exit (0);
 }
@@ -171,6 +171,22 @@ void bassa_uinfo (int itype)
       printf (BASSA_HELP, BASSA_DEFAULT_CONF);
       break;
     }
+}
+
+void bassa_database_check()
+{
+  bassa_db *dbd = bassa_db_init();
+  if (!dbd)
+  {
+    fprintf (stderr, 
+             "Error occured while initializing database\n");
+    exit (-1);
+  }
+  else
+  {
+    bassa_db_shutdown(dbd);
+  }
+
 }
 
 void bassa_sigpipe_handler (int signum)

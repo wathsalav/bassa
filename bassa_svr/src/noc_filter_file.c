@@ -34,3 +34,13 @@ long long bassa_file_get_size (char *file_name)
     return -1;
 }
 
+int bassa_transaction_fexist(char *fname)
+{
+  struct stat stat_buff;
+  if (!stat (fname, &stat_buff))
+    return 0;
+  else
+    return 1;
+
+}
+

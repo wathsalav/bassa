@@ -17,6 +17,36 @@
 
 #include "noc_filter_util.h"
 
+
+
+#define bassa_block(count, lock_till)		\
+  while(count == lock_till+1)
+
+#ifdef POSIX_THREADS
+#define bassa_push_cleaner(func,arg)		\
+  pthread_cleanup_push (func, arg)
+
+#define bassa_pop_cleaner(i)			\
+  pthread_cleanup_pop (i)
+
+#define bassa_task_id()				\
+  pthread_self()
+
+#define bassa_test_cancel()\
+  pthread_testcancel();
+#endif //POSIX_THREADS
+
+#define NOC_FILTER_SET_POOL(thread_array, index)	\
+  thread_array[index] = t;
+	
+#define NOC_FILTER_UNSET_POOL(thread_array, index)	\
+  thread_array[index] = 0;
+	
+#define NOC_FILTER_CLEANUP_POOL(thread_array, array_length)		\
+  int thread_array_counter = 0;						\
+  for(;thread_array_counter<array_length; thread_array_counter++)	\
+    thread_array[thread_array_counter] = 0;
+
 typedef struct 
 {
 #ifdef POSIX_THREADS
@@ -55,26 +85,16 @@ int bassa_unblock_signal (int num, ...);
 int bassa_blockall_signals ();
 
 int bassa_unblockall_signals ();
-
-#ifdef POSIX_THREADS
-#define bassa_add_cleanup(f, a)			\
-  pthread_cleanup_push(f, a);
-#endif //POSIX_THREADS
-	
-#ifdef POSIX_TREADS
-#define bassa_remove_cleanup()			\
-  pthread_cleanup_pop(0);
-#endif //POSIX_THREADS
 	
 int bassa_wait_spawn(bassa_task_pool *tt, void* (*routine)(void*), void *args);
 
 int bassa_nowait_spawn(bassa_task_pool *tt, void* (*routine)(void*), void *args);
   
-int bassa_enable_async_cancel(int* oldstate, int* oldtype);
+void bassa_task_cleaner(void *arg);
 
-int bassa_disable_cancel(int* oldstate, int* oldtype);
-  
-int bassa_reset_cancel(int* oldstate, int* oldtype);
+int bassa_enable_cancel(int* oldstate, int* oldtype);
+
+int bassa_disable_cancel(int* oldstate, int* oldtype);  
 
 int bassa_mutex_lock(bassa_mutex *bm);
 	
@@ -94,35 +114,11 @@ int bassa_sema_post(bassa_semaphore *bs);
 
 int bassa_sema_destroy(bassa_semaphore *bs);
 
-void bassa_exit(int *ret);
+void bassa_task_exit(int *ret);
 		
 void bassa_task_yield();
+
+int bassa_kill_task(bassa_task_pool *tp, unsigned long int t);
 	
-#define bassa_block(count, lock_till)		\
-  while(count == lock_till+1)
-
-int bassa_kill_task(bassa_task_pool *tp, int t);
-
-#ifdef POSIX_THREADS
-#define bassa_push_cleaner(func,arg)		\
-  pthread_cleanup_push (func, arg)
-
-#define bassa_pop_cleaner(i)			\
-  pthread_cleanup_pop (i)
-
-#define bassa_task_id()				\
-  pthread_self()
-#endif //POSIX_THREADS
-
-#define NOC_FILTER_SET_POOL(thread_array, index)	\
-  thread_array[index] = t;
-	
-#define NOC_FILTER_UNSET_POOL(thread_array, index)	\
-  thread_array[index] = 0;
-	
-#define NOC_FILTER_CLEANUP_POOL(thread_array, array_length)		\
-  int thread_array_counter = 0;						\
-  for(;thread_array_counter<array_length; thread_array_counter++)	\
-    thread_array[thread_array_counter] = 0;
-
+void  bassa_kill_task_pool(bassa_task_pool *tp);
 #endif //NOC_FILTER_CONCUR_H

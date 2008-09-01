@@ -262,7 +262,7 @@ bassa_setup_server_configuration (bassa_conf *conf, char *s, int len)
       char* str_url = NULL;	
       conf->svrcfg->server_url = bassa_assemble_configuration (str_url, s, len);
 #ifdef DEBUG
-      printf ("SERVER_PORT: %i\n", conf->svrcfg->server_url);
+      printf ("SERVER_URL: %s\n", conf->svrcfg->server_url);
 #endif //DEBUG
     }
   else if (conf->current_tag == SERVER_NAME_ID)

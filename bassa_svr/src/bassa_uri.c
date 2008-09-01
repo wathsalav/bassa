@@ -2,25 +2,30 @@
 #include <stdlib.h>
 #include <string.h>
 #include <bassa_uri.h>
-
+#include <bassa_uri.h>
 
 bassa_uri *bassa_uri_new (char *uri)
 {
   bassa_uri *bu = (bassa_uri*)malloc(sizeof(bassa_uri));
-  xmlURI *pURI = xmlParseURI(uri);
-  (pURI->scheme != NULL)?(bu->scheme = strdup(pURI->scheme)):(bu->scheme = NULL);  
-  (pURI->authority != NULL)?(bu->authority = strdup(pURI->authority)):(bu->authority = NULL); 
-  (pURI->server != NULL)?(bu->server = strdup(pURI->server)):(bu->server = NULL); 
-  bu->port = pURI->port;
-  (pURI->path != NULL)?(bu->path = strdup(pURI->path)):(bu->path = NULL); 
-  (pURI->user != NULL)?(bu->user = strdup(pURI->user)):(bu->user = NULL); 
-  (pURI->query_raw != NULL)?(bu->query = strdup(pURI->query_raw)):(bu->query = NULL); 
-  (pURI->fragment != NULL)?(bu->fragment = strdup(pURI->fragment)):(bu->fragment = NULL); 
-  (pURI->opaque)?(bu->opaque = strdup(pURI->opaque)):(bu->opaque = NULL); 
-  bu->file_name = bassa_uri_get_filename(bu->path); //Don't use pURI->path as we delete it before returning.
-  bu->uri = bassa_uri_escape(uri);
-  xmlFree(pURI);
-  return bu;
+  bu->uri = bassa_uri_unescape(uri);
+  xmlURI *pURI = xmlParseURI(bu->uri);
+  if (pURI)
+  {
+    (pURI->scheme != NULL)?(bu->scheme = strdup(pURI->scheme)):(bu->scheme = NULL);  
+    (pURI->authority != NULL)?(bu->authority = strdup(pURI->authority)):(bu->authority = NULL); 
+    (pURI->server != NULL)?(bu->server = strdup(pURI->server)):(bu->server = NULL); 
+    bu->port = pURI->port;
+    (pURI->path != NULL)?(bu->path = strdup(pURI->path)):(bu->path = NULL); 
+    (pURI->user != NULL)?(bu->user = strdup(pURI->user)):(bu->user = NULL); 
+    (pURI->query_raw != NULL)?(bu->query = strdup(pURI->query_raw)):(bu->query = NULL); 
+    (pURI->fragment != NULL)?(bu->fragment = strdup(pURI->fragment)):(bu->fragment = NULL); 
+    (pURI->opaque)?(bu->opaque = strdup(pURI->opaque)):(bu->opaque = NULL); 
+    bu->file_name = bassa_uri_get_filename(bu->path); //Don't use pURI->path as we delete it before returning. 
+    xmlFree(pURI);
+    return bu;
+  }
+  else
+    return NULL;
 }
 
 /**
@@ -90,24 +95,26 @@ void bassa_uri_free (bassa_uri *bu)
 char *bassa_uri_get_filename(char *path)
 {
   char *filename = NULL;
+  char *xpath = NULL;
   if (!path)
     return NULL;
   int last = strlen(path)-1;
   int i;
   for (i=last; i>-1; i--)
+  {
+    if(path[i] =='/')
     {
-      if(path[i]=='/')
-        {
-          filename = strdup(path);
-          break;
-        }
+      xpath = &path[i];
+      filename = strdup(xpath);
+      break;
     }
+  }
   return filename;
 }
 
-char *bassa_uri_escape(char *uri)
+char *bassa_uri_unescape(char *uri)
 {
-  char *escaped_uri = xmlURIEscapeStr(uri, URI_RESERVED_CHARS);
+  char *escaped_uri = xmlURIUnescapeString(uri, strlen(uri), NULL);
   return escaped_uri;
 }
 

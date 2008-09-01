@@ -8,7 +8,7 @@
 
 extern bassa_conf *conf;
 
-int bassa_ws_start();
+void *bassa_ws_start(void *arg);
 void *bassa_ws_exec(void *soap);
 
 #endif //BASSA_WS_SERVER_H

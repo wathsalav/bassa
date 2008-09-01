@@ -37,7 +37,7 @@ char *bassa_uri_get_filename(char *path);
 /**
  * Escape URI
  */
-char *bassa_uri_escape(char *uri);
+char *bassa_uri_unescape(char *uri);
 
 #endif //BASSA_URI
 

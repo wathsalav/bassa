@@ -5,9 +5,9 @@
 #include <bassa_ws_server.h>
 #include <noc_filter_concur.h>
 
-int bassa_ws_start() 
+void* bassa_ws_start(void *arg) 
 { 
-	//bassa_blockall_signals ();
+  //bassa_block_signal (SIGALRM);
   struct soap soap;
   soap_init(&soap); 
   soap.max_keep_alive = 100; // max keep-alive sequence 
@@ -22,26 +22,27 @@ int bassa_ws_start()
   int i;
   i=0;
   while(1)
+  { 
+    s = soap_accept(&soap); 
+    if (!soap_valid_socket(s)) 
     { 
-      s = soap_accept(&soap); 
-      if (!soap_valid_socket(s)) 
-		    { 
-	        if (soap.errnum) 
-	    	    { 
-	      	    soap_print_fault(&soap, stderr); 
-	            exit(1); 
-	    	    } 
-	  	    fprintf(stderr, "server timed out\n"); 
-	  	    break; 
-		    }
-      tsoap = soap_copy(&soap); // make a safe copy 
-      if (!tsoap) 
-		    break; 
-      bassa_nowait_spawn(NULL, bassa_ws_exec, (void*)tsoap); 
+      if (soap.errnum) 
+      { 
+	soap_print_fault(&soap, stderr); 
+	exit(1); 
+      } 
+      fprintf(stderr, "server timed out\n"); 
+      break; 
     }
-  soap_done(&soap); // detach soap struct 
-  //bassa_unblockall_signals ();
-  return 0; 
+    tsoap = soap_copy(&soap); // make a safe copy 
+    if (!tsoap) 
+      break; 
+    bassa_nowait_spawn(NULL, bassa_ws_exec, (void*)tsoap); 
+  }
+  soap_done(&soap); // detach soap struct
+  printf ("END OF WS START\n"); 
+  //bassa_unblock_signal (SIGALRM);
+  return NULL; 
 } 
 
 void *bassa_ws_exec(void *soap) 
