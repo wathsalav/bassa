@@ -10,7 +10,9 @@
 #include <bassa_trigger.h>
 
 int bassa__enqueue(struct soap *soap, struct bassa__request *r, char **response)
-{
+{ 
+  if (soap == NULL || r == NULL)
+    return SOAP_FAULT;
   bassa_trigger *btrig = bassa_trigger_new("/tmp/bassa_sched_trigger");
   bassa_db *dbd = bassa_db_init();
   if (!dbd)
@@ -39,6 +41,8 @@ int bassa__enqueue(struct soap *soap, struct bassa__request *r, char **response)
 
 int bassa__search(struct soap *soap, int offset, char *url, int sort_type, struct bassa__file_set *r)
 {
+  if (soap == NULL || url == NULL || r == NULL)
+    return SOAP_FAULT;
   bassa_db *dbd = bassa_db_init();
   if (!dbd)
   {
@@ -67,6 +71,8 @@ int bassa__search(struct soap *soap, int offset, char *url, int sort_type, struc
 
 int bassa__list_all(struct soap *soap, int offset, int sort_type, struct bassa__file_set *r)
 {
+  if (soap == NULL || r == NULL)
+    return SOAP_FAULT;
   bassa_db *dbd = bassa_db_init();
   if (!dbd)
   {
@@ -100,6 +106,8 @@ int bassa__delete(struct soap *soap, int id, char **response)
 
 int bassa__latest_downloads(struct soap *soap, int offset, struct bassa__file_set *r)
 {
+  if (soap == NULL || r == NULL)
+    return SOAP_FAULT;
   bassa_db *dbd = bassa_db_init();
   if (!dbd)
   {

@@ -32,10 +32,10 @@ int main(int argc, char *argv[])
   int i,j;
   struct bassa__file_set fs;
   j = 0;
-  do
+  /*do
   {
-    //soap_call_bassa__list_all(&s, svr, NULL, j*(fs.object_limit), ASEND, &fs);
-    soap_call_bassa__search(&s, svr, NULL, j*(fs.object_limit), nurl, ASEND, &fs);
+    soap_call_bassa__list_all(&s, svr, NULL, j*(fs.object_limit), ASEND, &fs);
+    //soap_call_bassa__search(&s, svr, NULL, j*(fs.object_limit), nurl, ASEND, &fs);
     printf ("<b>Total Results: %i</b><br/>\n", fs.total);
     printf ("<b>Offset: %i</b><br/>\n", fs.offset);
     printf ("<b>Object Limit: %i</b><br/>\n", fs.object_limit);
@@ -49,8 +49,8 @@ int main(int argc, char *argv[])
     }
     j++;
   }
-  while(fs.total == fs.object_limit);
-  /*soap_call_bassa__latest_downloads(&s, svr, NULL, j*(fs.object_limit), &fs);
+  while(fs.total == fs.object_limit);*/
+  soap_call_bassa__latest_downloads(&s, svr, NULL, j*(fs.object_limit), &fs);
   printf ("<b>Total Results: %i</b><br/>\n", fs.total);
   printf ("<b>Offset: %i</b><br/>\n", fs.offset);
   printf ("<b>Object Limit: %i</b><br/>\n", fs.object_limit);
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     printf ("Local URL: %s<br/>\n", fs.local_url[i]);
     printf ("Content Length: %i<br/>\n", fs.content_length[i]);
     printf ("Date: %lu<br/>\n", fs.date[i]);
-  }*/
+  }
   printf ("</body>\n</html>\n");
   if (s.error)
   { 
