@@ -10,14 +10,35 @@
 
 #define MAX_RES_LEN 10
 
+#define AUTH_OK 100
+#define AUTH_FAIL 200
+
+struct bassa__auth_request
+{
+  char *uid;	//User name
+  char *passwd;	//Password
+};
+
+struct bassa__auth_token
+{
+  unsigned long int auth_token_val;
+  unsigned long int auth_token_timeout;
+  char *auth_message;
+  int auth_status;
+};
+
 struct bassa__request
 {
   char *url;
   unsigned long int content_length;
+  unsigned long int auth_token_val;
+  char *uuid;
 };
 
 struct bassa__file_set
 {
+  int auth_status;
+  char *auth_message;
   unsigned int offset;
   unsigned int total;
   unsigned int object_limit;
@@ -28,8 +49,16 @@ struct bassa__file_set
   int hits[10];
   char *local_url[10];
   unsigned long int content_length[10];
-  time_t date[10];
+  time_t start_time[10];
+  time_t end_time[10];
+  char *uuid[10];
+  char *bassa_id[10];
 };
+
+/**
+ * Authenticate to use bassa
+ */
+//int bassa__authenticate(struct bassa_auth_request *rq, struct bassa_auth_token *rp);
 
 /**
  * Enqueue a request in bassa

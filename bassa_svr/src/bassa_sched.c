@@ -22,7 +22,7 @@ bassa_sched_new (bassa_conf *conf)
   bs->htproc_count = 0;
   htproc_count = &(bs->htproc_count);
   htproc_max = bs->htproc_max;
-  bs->trig = bassa_trigger_new ("/tmp/bassa_sched_trigger"); 
+  bs->trig = bassa_trigger_new (conf->svrcfg->server_event_bus); 
   if (bs->trig == NULL)
   {
     perror("Error creating trigger");

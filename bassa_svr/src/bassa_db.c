@@ -20,7 +20,8 @@ bassa_object* bassa_object_new(unsigned long int content_len)
   bobj->file_name = NULL;
   bobj->origin_url = NULL;
   bobj->hits = 0;
-  bobj->last_modi_date = 0;
+  bobj->end_time = 0;
+  bobj->uuid = NULL;
   return bobj;
 }
 
@@ -173,7 +174,7 @@ bassa_db* bassa_db_init()
       dbi_conn_select_db(dbd->conn, db_conf->dbicfg->db_name);
     }
   dbi_conn_set_option (dbd->conn, "dbname", db_conf->dbicfg->db_name);
-  sql_query = "CREATE TABLE IF NOT EXISTS cache_index(origin_url VARCHAR(1000) PRIMARY KEY, file_name VARCHAR(500), object_url VARCHAR(1000), object_path VARCHAR(1000), status VARCHAR(1), date_time TIMESTAMP, content_length  BIGINT, hits BIGINT, proto_bf INT)";
+  sql_query = "CREATE TABLE IF NOT EXISTS cache_index(id BIGINT AUTO_INCREMENT, PRIMARY KEY(id), origin_url VARCHAR(1000) UNIQUE NOT NULL, file_name VARCHAR(512), object_url VARCHAR(1024), object_path VARCHAR(1024), status VARCHAR(1), date_time TIMESTAMP, content_length  BIGINT, hits BIGINT, proto_bf INT, client_uuid VARCHAR(256) NOT NULL)";
   dbres = dbi_conn_queryf(dbd->conn, sql_query);
   if (!dbres)
     {
@@ -227,11 +228,11 @@ int bassa_db_queue(bassa_db *dbd, bassa_irequest *irq)
     return -1;
   char *sql_query = NULL;
   dbi_result *dbres = NULL;
-  sql_query = "INSERT INTO cache_index(origin_url, file_name, object_url, object_path, status, content_length, hits, proto_bf) VALUES('%s', '%s', '%s', '%s','%s', %i, %i, %i)";
+  sql_query = "INSERT INTO cache_index(origin_url, file_name, object_url, object_path, status, content_length, hits, proto_bf, client_uuid) VALUES('%s', '%s', '%s', '%s','%s', %i, %i, %i, '%s')"; 
   dbres = dbi_conn_queryf(dbd->conn, sql_query, irq->buri->uri, 
-                          irq->buri->file_name, irq->bobj->object_url, 
-                          irq->bobj->object_path, irq->bobj->status, 
-                          irq->bobj->content_length, 0, 0);
+      irq->buri->file_name, irq->bobj->object_url, 
+      irq->bobj->object_path, irq->bobj->status, 
+      irq->bobj->content_length, 0, 0, irq->bobj->uuid);
   if(!dbres)
     return -1;
   else
@@ -424,7 +425,8 @@ bassa_object_set *bassa_list_all(bassa_db *dbd, int offset, int sort_type)
       bobj->object_url = dbi_result_get_string_copy (dbres, "object_url");
       bobj->object_path = dbi_result_get_string_copy (dbres, "object_path");
       bobj->file_name = dbi_result_get_string_copy (dbres, "file_name");
-      bobj->date = dbi_result_get_datetime (dbres, "date_time");
+      bobj->start_time = dbi_result_get_datetime (dbres, "start_time");
+      bobj->end_time = dbi_result_get_datetime (dbres, "end_time");
       bobj->hits = dbi_result_get_ulonglong (dbres, "hits");
       bobjs->bobj[count] = bobj;
       count++;
@@ -451,7 +453,7 @@ bassa_object_set *bassa_search_file(bassa_db *dbd, char *file_name,
     st = "ASC";
   sql_query = "SELECT * FROM cache_index WHERE origin_url LIKE '%%%s%%' OR file_name LIKE '%%%s%%' ORDER BY date_time %s LIMIT %i OFFSET %i";
 #ifdef DEBUG
-  printf (sql_query, st, file_name, file_name, RESULT_SET_SIZE, offset);
+  printf (sql_query, file_name, file_name, st, RESULT_SET_SIZE, offset);
   printf ("\n");
 #endif //DEBUG
   if (bassa_db_reinit(dbd))
@@ -474,7 +476,8 @@ bassa_object_set *bassa_search_file(bassa_db *dbd, char *file_name,
       bobj->object_url = dbi_result_get_string_copy (dbres, "object_url");
       bobj->object_path = dbi_result_get_string_copy (dbres, "object_path");
       bobj->file_name = dbi_result_get_string_copy (dbres, "file_name");
-      bobj->date = dbi_result_get_datetime (dbres, "date_time");
+      bobj->start_time = dbi_result_get_datetime (dbres, "start_time");
+      bobj->end_time = dbi_result_get_datetime (dbres, "end_time");
       bobj->hits = dbi_result_get_ulonglong (dbres, "hits");
       bobjs->bobj[count] = bobj;
       count++;
@@ -514,7 +517,8 @@ bassa_object_set *bassa_list_latest(bassa_db *dbd, int offset)
       bobj->object_url = dbi_result_get_string_copy (dbres, "object_url");
       bobj->object_path = dbi_result_get_string_copy (dbres, "object_path");
       bobj->file_name = dbi_result_get_string_copy (dbres, "file_name");
-      bobj->date = dbi_result_get_datetime (dbres, "date_time");
+      bobj->start_time = dbi_result_get_datetime (dbres, "start_time");
+      bobj->end_time = dbi_result_get_datetime (dbres, "end_time");
       bobj->hits = dbi_result_get_ulonglong (dbres, "hits");
       bobjs->bobj[count] = bobj;
       count++;

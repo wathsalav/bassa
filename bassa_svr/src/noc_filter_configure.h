@@ -44,6 +44,16 @@
 #define SERVER_HTTP_PROXY_PORT_TAG "server_http_proxy_port"
 #define SERVER_BACKLOG_ID 10
 #define SERVER_BACKLOG_TAG "server_backlog"
+#define SERVER_EVENT_BUS_ID 39
+#define SERVER_EVENT_BUS_TAG "server_event_bus"
+#define SERVER_UID_ID 40
+#define SERVER_UID_TAG "server_uid"
+#define SERVER_GID_ID 41
+#define SERVER_GID_TAG "server_gid"
+#define SERVER_ERROR_LOG_ID 42
+#define SERVER_ERROR_LOG_TAG "server_error_log"
+#define SERVER_ACCESS_LOG_ID 43
+#define SERVER_ACCESS_LOG_TAG "server_access_log"
 
 //This is the downloader section..
 #define DOWNLOADER_ID 11
@@ -124,6 +134,11 @@ typedef struct
   char *http_proxy_address;  /*HTTP proxy address*/
   int http_proxy_port;       /*HTTP proxy port*/
   char *http_proxy;
+  char *server_event_bus;    /*FIFO used for server event handling*/
+  char *server_error_log;    /*Path to error log*/
+  char *server_access_log;   /*Path to access log*/
+  char *server_uid;          /*Process UID*/
+  char *server_gid;          /*Process GID*/
 }bassa_server_conf;
 
 typedef struct

@@ -19,4 +19,5 @@ AC_FUNC_MALLOC
 AC_TYPE_SIGNAL
 AC_CHECK_FUNCS([alarm])
 
-AC_OUTPUT(Makefile src/Makefile src/modules/Makefile src/modules/notifiers/Makefile src/modules/notifiers/web/Makefile src/modules/examples/Makefile src/modules/meta_content/Makefile src/modules/meta_content/video2flv/Makefile src/modules/mime/Makefile src/modules/anti_collision/Makefile src/modules/crypt/Makefile src/modules/bassa_tv/Makefile src/modules/meta_content/video2thumb/Makefile)
+AC_OUTPUT(Makefile src/Makefile)
+#src/modules/Makefile src/modules/notifiers/Makefile src/modules/notifiers/web/Makefile src/modules/examples/Makefile src/modules/meta_content/Makefile src/modules/meta_content/video2flv/Makefile src/modules/mime/Makefile src/modules/anti_collision/Makefile src/modules/crypt/Makefile src/modules/bassa_tv/Makefile src/modules/meta_content/video2thumb/Makefile)

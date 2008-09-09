@@ -20,7 +20,7 @@
 #include "noc_filter_configure.h"
 #include "bassa_sched.h"
 #include "bassa_module_manager.h"
-
+#include "bassa_sec.h"
 #include "bassa_ws_server.h"
 
 //Location of the default configuration file
@@ -111,7 +111,20 @@ main (int argc, char *argv[])
   //Start web service
   bassa_nowait_spawn(NULL, bassa_ws_start, NULL);
   //Initialise and start scheduler
-  bassa_sched *bsch = bassa_sched_new (conf);
+  bassa_sched *bsch = bassa_sched_new (conf); 
+  int sown = bassa_sec_setowner(conf->svrcfg->server_uid, 
+      	                        conf->svrcfg->server_gid,
+      			        conf->svrcfg->server_event_bus);
+  if (sown < 0)
+    printf ("Unable to setowner to %s:%s for %s\n", 
+	    conf->svrcfg->server_uid, conf->svrcfg->server_gid,
+	    conf->svrcfg->server_event_bus);
+  int sid = bassa_sec_setgid(conf->svrcfg->server_gid);
+  if (sid < 0)
+    printf ("Unable to setgid to %s\n", conf->svrcfg->server_gid);
+  sid = bassa_sec_setuid(conf->svrcfg->server_uid);
+  if (sid < 0)
+    printf ("Unable to setuid to %s\n", conf->svrcfg->server_uid); 
   bassa_sched_start (bsch);
   bassa_modtab_delete (bmt);
   exit (0);

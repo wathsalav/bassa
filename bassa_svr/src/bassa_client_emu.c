@@ -31,6 +31,8 @@ int main(int argc, char *argv[])
   int offset = 0;
   int i,j;
   struct bassa__file_set fs;
+  soap_call_bassa__enqueue(&s, svr, NULL, &br, &response);
+  printf ("%s\n", response);
   j = 0;
   /*do
   {
@@ -50,7 +52,7 @@ int main(int argc, char *argv[])
     j++;
   }
   while(fs.total == fs.object_limit);*/
-  soap_call_bassa__latest_downloads(&s, svr, NULL, j*(fs.object_limit), &fs);
+  /*soap_call_bassa__latest_downloads(&s, svr, NULL, j*(fs.object_limit), &fs);
   printf ("<b>Total Results: %i</b><br/>\n", fs.total);
   printf ("<b>Offset: %i</b><br/>\n", fs.offset);
   printf ("<b>Object Limit: %i</b><br/>\n", fs.object_limit);
@@ -60,8 +62,9 @@ int main(int argc, char *argv[])
     printf ("File URL: %s<br/>\n", fs.url[i]);
     printf ("Local URL: %s<br/>\n", fs.local_url[i]);
     printf ("Content Length: %i<br/>\n", fs.content_length[i]);
-    printf ("Date: %lu<br/>\n", fs.date[i]);
-  }
+    printf ("Start Time: %lu<br/>\n", fs.start_time[i]);
+    printf ("End Time: %lu<br/>\n", fs.end_time[i]);
+  }*/
   printf ("</body>\n</html>\n");
   if (s.error)
   { 

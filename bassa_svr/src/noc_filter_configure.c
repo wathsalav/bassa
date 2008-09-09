@@ -83,7 +83,17 @@ bassa_start_tag_handler(void *udata, char *name, char **attr)
     conf->current_tag = SERVER_HTTP_PROXY_PORT_ID;
   else if (!strcmp(name, SERVER_URL_TAG))
     conf->current_tag = SERVER_URL_ID;
-	
+  else if (!strcmp(name, SERVER_EVENT_BUS_TAG))
+    conf->current_tag = SERVER_EVENT_BUS_ID;
+  else if (!strcmp(name, SERVER_ERROR_LOG_TAG))
+    conf->current_tag = SERVER_ERROR_LOG_ID;	
+  else if (!strcmp(name, SERVER_ACCESS_LOG_TAG))
+    conf->current_tag = SERVER_ACCESS_LOG_ID;
+  else if (!strcmp(name, SERVER_UID_TAG))
+    conf->current_tag = SERVER_UID_ID;	
+  else if (!strcmp(name, SERVER_GID_TAG))
+    conf->current_tag = SERVER_GID_ID;
+
   if (!strcmp(name, DOWNLOADER_TAG))
     {
       conf->current_tag = DOWNLOADER_ID;
@@ -194,24 +204,28 @@ void
 bassa_conf_cdata_handler (void *udata, char *s, int len)
 {
   bassa_conf *conf = (bassa_conf*)udata;
+  char *x = (char*)malloc(len);
+  memset (x, '\0', len);
+  memcpy(x, s , len);
   switch (conf->current_config_module)
     {
     case SERVER_CONF_MODULE :
-      bassa_setup_server_configuration (conf, s, len);
+      bassa_setup_server_configuration (conf, x, len);
       break;
     case DOWNLOADER_CONF_MODULE :
-      bassa_setup_downloader_configuration (conf, s, len);
+      bassa_setup_downloader_configuration (conf, x, len);
       break;
     case REPOSITORY_CONF_MODULE :
-      bassa_setup_repository_configuration (conf, s, len);
+      bassa_setup_repository_configuration (conf, x, len);
       break;
     case MODULE_CONF_MODULE :
-      bassa_setup_module_configuration (conf, s, len);
+      bassa_setup_module_configuration (conf, x, len);
       break;
     case DBI_CONF_MODULE :
-      bassa_setup_dbi_configuration (conf, s, len);
+      bassa_setup_dbi_configuration (conf, x, len);
       break;
     }
+  free (x);
 }
 
 char*
@@ -226,7 +240,7 @@ bassa_assemble_configuration (char *element, char *s, int len)
     }
   else
     {
-      int length = strlen (element) + len;
+      int length = strlen (element) + len; 
       element = 
 	realloc (element, length + 1);
       strncat (element, s, len);
@@ -323,6 +337,46 @@ bassa_setup_server_configuration (bassa_conf *conf, char *s, int len)
       printf ("CHILD_TIMEOUT: %i\n", conf->svrcfg->child_timeout);
 #endif //DEBUG
     }
+  else if (conf->current_tag == SERVER_EVENT_BUS_ID)
+    {
+      conf->svrcfg->server_event_bus = NULL;
+      conf->svrcfg->server_event_bus = bassa_assemble_configuration (conf->svrcfg->server_event_bus, s, len);
+#ifdef DEBUG
+      printf ("SERVER_EVENT_BUS: %s\n", conf->svrcfg->server_event_bus);
+#endif //DEBUG
+    }
+  else if (conf->current_tag == SERVER_UID_ID)
+    {
+      conf->svrcfg->server_uid = NULL;
+      conf->svrcfg->server_uid = bassa_assemble_configuration (conf->svrcfg->server_uid, s, len);
+#ifdef DEBUG
+      printf ("SERVER_UID: %s\n", conf->svrcfg->server_uid);
+#endif //DEBUG
+    }
+  else if (conf->current_tag == SERVER_GID_ID)
+    {
+      conf->svrcfg->server_gid = NULL;
+      conf->svrcfg->server_gid = bassa_assemble_configuration (conf->svrcfg->server_gid, s, len);
+#ifdef DEBUG
+      printf ("SERVER_UID: %s\n", conf->svrcfg->server_gid);
+#endif //DEBUG
+    }
+  else if (conf->current_tag == SERVER_ERROR_LOG_ID)
+    {
+      conf->svrcfg->server_error_log = NULL;
+      conf->svrcfg->server_error_log = bassa_assemble_configuration (conf->svrcfg->server_error_log, s, len);
+#ifdef DEBUG
+      printf ("SERVER_ERROR_LOG: %s\n", conf->svrcfg->server_error_log);
+#endif //DEBUG
+    }
+  else if (conf->current_tag == SERVER_ACCESS_LOG_ID)
+    {
+      conf->svrcfg->server_access_log = NULL;
+      conf->svrcfg->server_access_log = bassa_assemble_configuration (conf->svrcfg->server_access_log, s, len);
+#ifdef DEBUG
+      printf ("SERVER_ACCESS_LOG: %s\n", conf->svrcfg->server_access_log);
+#endif //DEBUG
+    }
 }
 
 void
@@ -415,15 +469,17 @@ bassa_setup_repository_configuration (bassa_conf *conf, char *s, int len)
 {
   if (conf->current_tag == REPOSITORY_PATH_ID)
     {
+      conf->repocfg->repo_path = NULL;
       conf->repocfg->repo_path = 
 	       bassa_assemble_configuration (conf->repocfg->repo_path, 
-                                       s, len);
+		   			     s, len);
 #ifdef DEBUG
       printf ("REPOSITORY_PATH: %s\n", conf->repocfg->repo_path);
 #endif //DEBUG
     }
   if (conf->current_tag == REPOSITORY_URL_ID)
     {
+      conf->repocfg->url = NULL;
       conf->repocfg->url =
          bassa_assemble_configuration (conf->repocfg->url,
                                        s, len);
@@ -537,6 +593,9 @@ bassa_parse_configuration (char *file_name)
 	}
       memset ((void*)tmp_buffer, (int)'\0', byte_count);
     }
+  printf ("============================================\n");
+  printf ("%s\n",xml_buffer);
+  printf ("============================================\n");
   free (tmp_buffer);
   XML_StartElementHandler sh = (XML_StartElementHandler)bassa_start_tag_handler;
   XML_EndElementHandler eh = (XML_EndElementHandler)bassa_stop_tag_handler;

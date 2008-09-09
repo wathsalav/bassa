@@ -48,8 +48,9 @@ typedef struct
   char *file_name;
   unsigned long int hits;
   unsigned int proto_bf;
-  time_t date;
-  time_t last_modi_date;
+  time_t start_time;
+  time_t end_time;
+  char *uuid;
 }bassa_object;
 
 typedef struct

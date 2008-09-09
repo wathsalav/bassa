@@ -20055,7 +20055,7 @@ fi
 done
 
 
-ac_config_files="$ac_config_files Makefile src/Makefile src/modules/Makefile src/modules/notifiers/Makefile src/modules/notifiers/web/Makefile src/modules/examples/Makefile src/modules/meta_content/Makefile src/modules/meta_content/video2flv/Makefile src/modules/mime/Makefile src/modules/anti_collision/Makefile src/modules/crypt/Makefile src/modules/bassa_tv/Makefile src/modules/meta_content/video2thumb/Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -20645,17 +20645,6 @@ do
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
-    "src/modules/Makefile") CONFIG_FILES="$CONFIG_FILES src/modules/Makefile" ;;
-    "src/modules/notifiers/Makefile") CONFIG_FILES="$CONFIG_FILES src/modules/notifiers/Makefile" ;;
-    "src/modules/notifiers/web/Makefile") CONFIG_FILES="$CONFIG_FILES src/modules/notifiers/web/Makefile" ;;
-    "src/modules/examples/Makefile") CONFIG_FILES="$CONFIG_FILES src/modules/examples/Makefile" ;;
-    "src/modules/meta_content/Makefile") CONFIG_FILES="$CONFIG_FILES src/modules/meta_content/Makefile" ;;
-    "src/modules/meta_content/video2flv/Makefile") CONFIG_FILES="$CONFIG_FILES src/modules/meta_content/video2flv/Makefile" ;;
-    "src/modules/mime/Makefile") CONFIG_FILES="$CONFIG_FILES src/modules/mime/Makefile" ;;
-    "src/modules/anti_collision/Makefile") CONFIG_FILES="$CONFIG_FILES src/modules/anti_collision/Makefile" ;;
-    "src/modules/crypt/Makefile") CONFIG_FILES="$CONFIG_FILES src/modules/crypt/Makefile" ;;
-    "src/modules/bassa_tv/Makefile") CONFIG_FILES="$CONFIG_FILES src/modules/bassa_tv/Makefile" ;;
-    "src/modules/meta_content/video2thumb/Makefile") CONFIG_FILES="$CONFIG_FILES src/modules/meta_content/video2thumb/Makefile" ;;
 
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
@@ -21463,3 +21452,4 @@ if test "$no_create" != yes; then
   $ac_cs_success || { (exit 1); exit 1; }
 fi
 
+#src/modules/Makefile src/modules/notifiers/Makefile src/modules/notifiers/web/Makefile src/modules/examples/Makefile src/modules/meta_content/Makefile src/modules/meta_content/video2flv/Makefile src/modules/mime/Makefile src/modules/anti_collision/Makefile src/modules/crypt/Makefile src/modules/bassa_tv/Makefile src/modules/meta_content/video2thumb/Makefile)
