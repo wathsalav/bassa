@@ -24,7 +24,8 @@ int main(int argc, char *argv[])
   {
     nurl = url+strlen(RVAL_URL)+1;
   }
-  br.url = nurl; 
+  br.url = nurl;
+  br.uuid = "wathsala"; 
   char *response = NULL;
   struct soap s;
   soap_init (&s);

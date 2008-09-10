@@ -111,4 +111,6 @@ char *bassa_db_get_file_status(bassa_db *dbd, int id);
 
 int bassa_invert_status(bassa_db *dbd, char *current, char *next);
 
+bassa_object_set *bassa_list_byuuid(bassa_db *dbd, char *uuid, int offset, int sort_type);
+
 #endif //BASSA_DB_H

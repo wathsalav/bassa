@@ -98,10 +98,13 @@ bassa_sched_start(void* param)
 	}
 	break;
       case BASSA_INIT_PROC:
-	printf ("Initialize Process\n");
-	bassa_irequest *sbirq = bassa_db_getpending(bs->dbd);
-	if (sbirq != NULL)
-	  bassa_nowait_spawn(htpool, bassa_sched_htproc, sbirq);
+	if (bs->sched_sleep == AWAKE)
+	{
+	  printf ("Initialize Process\n");
+	  bassa_irequest *sbirq = bassa_db_getpending(bs->dbd);
+	  if (sbirq != NULL)
+	    bassa_nowait_spawn(htpool, bassa_sched_htproc, sbirq);
+	}
 	break;
       case BASSA_ALARM_FIRED:
 	printf ("ALARM FIRED\n");

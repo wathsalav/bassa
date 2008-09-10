@@ -424,6 +424,7 @@ bassa_object_set *bassa_list_all(bassa_db *dbd, int offset, int sort_type)
       bobj->status = dbi_result_get_string_copy (dbres, "status");
       bobj->object_url = dbi_result_get_string_copy (dbres, "object_url");
       bobj->object_path = dbi_result_get_string_copy (dbres, "object_path");
+      bobj->uuid = dbi_result_get_string_copy (dbres, "client_uuid");
       bobj->file_name = dbi_result_get_string_copy (dbres, "file_name");
       bobj->start_time = dbi_result_get_datetime (dbres, "start_time");
       bobj->end_time = dbi_result_get_datetime (dbres, "end_time");
@@ -476,6 +477,7 @@ bassa_object_set *bassa_search_file(bassa_db *dbd, char *file_name,
       bobj->object_url = dbi_result_get_string_copy (dbres, "object_url");
       bobj->object_path = dbi_result_get_string_copy (dbres, "object_path");
       bobj->file_name = dbi_result_get_string_copy (dbres, "file_name");
+      bobj->uuid = dbi_result_get_string_copy (dbres, "client_uuid");
       bobj->start_time = dbi_result_get_datetime (dbres, "start_time");
       bobj->end_time = dbi_result_get_datetime (dbres, "end_time");
       bobj->hits = dbi_result_get_ulonglong (dbres, "hits");
@@ -517,6 +519,7 @@ bassa_object_set *bassa_list_latest(bassa_db *dbd, int offset)
       bobj->object_url = dbi_result_get_string_copy (dbres, "object_url");
       bobj->object_path = dbi_result_get_string_copy (dbres, "object_path");
       bobj->file_name = dbi_result_get_string_copy (dbres, "file_name");
+      bobj->uuid = dbi_result_get_string_copy (dbres, "client_uuid");
       bobj->start_time = dbi_result_get_datetime (dbres, "start_time");
       bobj->end_time = dbi_result_get_datetime (dbres, "end_time");
       bobj->hits = dbi_result_get_ulonglong (dbres, "hits");
@@ -552,4 +555,55 @@ int bassa_invert_status(bassa_db *dbd, char *current, char *next)
   else
     dbi_result_free(dbres);
   return SUCCESS;
+}
+
+bassa_object_set *bassa_list_byuuid(bassa_db *dbd, char *uuid, int offset, int sort_type)
+{
+  if (!dbd)
+    return NULL;
+  if (!uuid)
+    return NULL;
+  if (sort_type != 0)
+    sort_type = 1;
+  char *sql_query = NULL;
+  dbi_result *dbres = NULL;
+  char *st = NULL;
+  if (sort_type > 0)
+    st = "DESC";
+  else
+    st = "ASC";
+  sql_query = "SELECT * FROM cache_index WHERE client_uuid='%s' ORDER BY date_time %s LIMIT %i OFFSET %i";
+#ifdef DEBUG
+  printf (sql_query, uuid, st, RESULT_SET_SIZE, offset);
+  printf ("\n");
+#endif //DEBUG
+  if (bassa_db_reinit(dbd))
+    return NULL;
+  dbres = dbi_conn_queryf(dbd->conn, sql_query, uuid,
+                          st, RESULT_SET_SIZE, offset);
+  if (!dbres)
+    return NULL;
+  bassa_object *bobj = NULL;
+  int count = 0;
+  bassa_object_set *bobjs = (bassa_object_set*)malloc(sizeof(bassa_object_set));
+  bobjs->object_limit = RESULT_SET_SIZE;
+  bobjs->total = dbi_result_get_numrows (dbres);
+  bobjs->offset = offset;
+  while (dbi_result_next_row (dbres))
+    {
+      bobj = bassa_object_new (dbi_result_get_ulonglong(dbres, "content_length"));
+      bobj->origin_url = dbi_result_get_string_copy (dbres, "origin_url");
+      bobj->status = dbi_result_get_string_copy (dbres, "status");
+      bobj->object_url = dbi_result_get_string_copy (dbres, "object_url");
+      bobj->object_path = dbi_result_get_string_copy (dbres, "object_path");
+      bobj->file_name = dbi_result_get_string_copy (dbres, "file_name");
+      bobj->uuid = dbi_result_get_string_copy (dbres, "client_uuid");
+      bobj->start_time = dbi_result_get_datetime (dbres, "start_time");
+      bobj->end_time = dbi_result_get_datetime (dbres, "end_time");
+      bobj->hits = dbi_result_get_ulonglong (dbres, "hits");
+      bobjs->bobj[count] = bobj;
+      count++;
+    }
+  dbi_result_free (dbres);
+  return bobjs;
 }

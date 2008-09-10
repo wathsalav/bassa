@@ -67,7 +67,7 @@ int bassa__enqueue(struct bassa__request *r, char **response);
 /**
  * Search for a file name or an URL
  */
-int bassa__search(int offset,char *url, int sort_type, struct bassa__file_set *r);
+int bassa__search(int offset, int sort_type, char *url, struct bassa__file_set *r);
 /**
  * List all objects in cache
  */
@@ -84,6 +84,11 @@ int bassa__latest_downloads(int offset, struct bassa__file_set *r);
  * Get status of the cache
  */
 int bassa__get_status(int id, char **response);
+
+/**
+ * List requests by user
+ */
+int bassa__list_byuuid(int offset, int sort_type, char *uuid, struct bassa__file_set *r);
 
 #endif //BASSA_WS_H
 
