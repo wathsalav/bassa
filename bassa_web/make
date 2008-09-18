@@ -1,6 +1,0 @@
-#!/bin/csh
-cd install/database
-php create_db.php
-cd ../
-cp apache-gadisk.conf /etc/httpd/conf.d/
-cp cron-gadisk /etc/cron.hourly/

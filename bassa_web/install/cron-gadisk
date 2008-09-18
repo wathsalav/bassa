@@ -1,6 +1,0 @@
-#! /bin/bash
-# backing up database for gadisk
-
-if [ -s /usr/bin/mysqldump ]; then
-   exec /usr/bin/mysqldump gadisk -uroot -ppassword >/var/log/gadisk.sql
-fi
