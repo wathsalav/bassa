@@ -36,14 +36,21 @@ int bassa_get_first_line(char *start, int len, bassa_http_msg *htmsg)
   new_start = (char*)memchr(first_line, (int)'\r', len);
   if (!new_start)
     return 0;
-  if (len > (new_start - first_line)+1)
+  else if (len < (new_start - first_line)+2)
+  {
+    return 0;
+  }
+  else if (len >= (new_start - first_line)+2)
     {
-      htmsg->first_line_len = (new_start - first_line) + 2;
-      new_start += 2;
+      htmsg->first_line_len = (new_start - first_line);
       htmsg->first_line = first_line;
       htmsg->first_line_done = 1;
+#ifdef DEBUG
       write (fileno(stdout), htmsg->first_line, htmsg->first_line_len);
-      return htmsg->first_line_len;
+      write (fileno(stdout), "\r\n", 2);
+#endif //DEBUG
+      htmsg->header_len += htmsg->first_line_len + 2;
+      return len - ((htmsg->first_line_len)+2);
     }
   else
     return -1;
@@ -51,6 +58,7 @@ int bassa_get_first_line(char *start, int len, bassa_http_msg *htmsg)
 
 int bassa_parse_header(char *start, int len, bassa_http_msg *htmsg)
 {
+  printf ("LEN: %i\n", len);
   int com_len = 0, rem_len = len;
   char *start_cur = start;
   if (len > MAX_HEADER_SIZE)
@@ -58,31 +66,34 @@ int bassa_parse_header(char *start, int len, bassa_http_msg *htmsg)
   while(1)
   {
     char *new_line = (char*)memchr(start_cur, (int)'\r', len);
-    int new_line_len = new_line - start_cur;	/*find the length of line excluding \r\n*/
-    com_len += new_line_len;	/*length of the completed header, excluding \r\n*/
-    rem_len -= new_line_len;	/*length of the remaining header, excluding \r\n*/
-    if (!(new_line))
+    int new_line_len = 0;
+    if (new_line != NULL)
     {
+      new_line_len = new_line - start_cur;	/*find the length of line excluding \r\n*/
+      com_len += new_line_len;	/*length of the completed header, excluding \r\n*/
+      rem_len -= new_line_len;	/*length of the remaining header, excluding \r\n*/
+    }
+    else
       return rem_len;
-    }
-    else if (rem_len < 3)	/*if new_line is not a complete header return reverted rem_len*/
-    {
+
+    if (rem_len < 3)	/*if new_line is not a complete header return reverted rem_len*/
       return (rem_len + new_line_len);
-    }
     else	/*if new_line is a complete header then update rem_len, com_len and start_cur*/
     {
       com_len += 2;
       rem_len -= 2;
       start_cur += (new_line_len + 3);
       char *field = (char*)malloc(new_line_len + 1);
+      memset(field, (int)'\0', new_line_len);
       memcpy(field, new_line, new_line_len);
       bassa_http_add_field (htmsg, field, new_line_len);
-      htmsg->header_len += com_len;
+      htmsg->header_len += (new_line_len + 2);
       write(fileno(stdout), new_line, new_line_len);
       if (*start_cur == '\r')	/*if start_cur points to a \r then we are done parsing the header*/  
       {
 	htmsg->header_len += 2;
 	htmsg->header_done = 1;
+	htmsg->header_len += 2;
 	return 0;
       }
     }
@@ -95,7 +106,7 @@ bassa_http_msg* bassa_parse_msg(int socket, int type)
   char buf[buf_len];
   memset(buf, (int)'\0', buf_len);
   int rlen = 0, tlen = 0;
-  int fl_ret = 0, hd_ret = 0;
+  int rem = 0;
   char *content = NULL;
   bassa_http_msg *htmsg = bassa_http_msg_new(type);
   while ((rlen=recv(socket, buf, buf_len, 0))>0)
@@ -106,27 +117,32 @@ bassa_http_msg* bassa_parse_msg(int socket, int type)
       htmsg->total_recv = tlen;
       if (!FIRST_LINE_READ(htmsg))
         {
-          fl_ret = bassa_get_first_line(content, tlen, htmsg);
-          if (fl_ret == 0)
+          rem = bassa_get_first_line(content, tlen, htmsg);
+          if (rem == 0)
             continue;
-          if (fl_ret > 0)
+          if (rem > 0)
+	  {
+	    printf ("Fist line rem: %i\n", rem);
             bassa_parse_first_line (htmsg);
-          if (fl_ret == -1)
+	  }
+          if (rem == -1)
             return NULL;
          }
        if (!HEADER_READ(htmsg))
          {
-           hd_ret = bassa_parse_header(content + (hd_ret + fl_ret), 
-                                       tlen - (htmsg->first_line_len), htmsg);
-           if (hd_ret == 0)
+	   printf ("H Len: %i\n", rem);
+	   printf ("Total Len: %i\n", tlen);
+           rem += bassa_parse_header(content + (tlen-rem), 
+                                       tlen - rem, htmsg);
+           if (rem == 0)
              {
-               htmsg->header = content + fl_ret;
+               htmsg->header = content + rem;
                htmsg->first_line = content;
 	       /*htmsg->body += 2;
 	       htmsg->body_init_len -= 2;*/
                break;
              }
-           else if (hd_ret > 0)
+           else if (rem > 0)
              {
                continue;
              }
