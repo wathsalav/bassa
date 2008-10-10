@@ -45,10 +45,6 @@ int bassa_get_first_line(char *start, int len, bassa_http_msg *htmsg)
       htmsg->first_line_len = (new_start - first_line);
       htmsg->first_line = first_line;
       htmsg->first_line_done = 1;
-#ifdef DEBUG
-      write (fileno(stdout), htmsg->first_line, htmsg->first_line_len);
-      write (fileno(stdout), "\r\n", 2);
-#endif //DEBUG
       htmsg->header_len += htmsg->first_line_len + 2;
       return len - ((htmsg->first_line_len)+2);
     }
@@ -58,42 +54,40 @@ int bassa_get_first_line(char *start, int len, bassa_http_msg *htmsg)
 
 int bassa_parse_header(char *start, int len, bassa_http_msg *htmsg)
 {
-  printf ("LEN: %i\n", len);
   int com_len = 0, rem_len = len;
   char *start_cur = start;
   if (len > MAX_HEADER_SIZE)
     return -1;
   while(1)
   {
-    char *new_line = (char*)memchr(start_cur, (int)'\r', len);
+    //write(fileno(stdout), start_cur, len);
+    char *next_line = (char*)memchr(start_cur, (int)'\r', len);
     int new_line_len = 0;
-    if (new_line != NULL)
+    if (next_line != NULL)
     {
-      new_line_len = new_line - start_cur;	/*find the length of line excluding \r\n*/
+      new_line_len = next_line - start_cur;	/*find the length of line excluding \r\n*/
       com_len += new_line_len;	/*length of the completed header, excluding \r\n*/
       rem_len -= new_line_len;	/*length of the remaining header, excluding \r\n*/
     }
     else
       return rem_len;
 
-    if (rem_len < 3)	/*if new_line is not a complete header return reverted rem_len*/
+    if (rem_len < 2)	/*if new_line is not a complete header return reverted rem_len*/
       return (rem_len + new_line_len);
     else	/*if new_line is a complete header then update rem_len, com_len and start_cur*/
     {
       com_len += 2;
       rem_len -= 2;
-      start_cur += (new_line_len + 3);
       char *field = (char*)malloc(new_line_len + 1);
-      memset(field, (int)'\0', new_line_len);
-      memcpy(field, new_line, new_line_len);
-      bassa_http_add_field (htmsg, field, new_line_len);
+      memset(field, (int)'\0', new_line_len + 1);
+      memcpy(field, start_cur, new_line_len);
+      bassa_http_add_field (htmsg, field, new_line_len + 1);
       htmsg->header_len += (new_line_len + 2);
-      write(fileno(stdout), new_line, new_line_len);
+      start_cur += (new_line_len + 2);
       if (*start_cur == '\r')	/*if start_cur points to a \r then we are done parsing the header*/  
       {
 	htmsg->header_len += 2;
 	htmsg->header_done = 1;
-	htmsg->header_len += 2;
 	return 0;
       }
     }
@@ -102,7 +96,7 @@ int bassa_parse_header(char *start, int len, bassa_http_msg *htmsg)
 
 bassa_http_msg* bassa_parse_msg(int socket, int type)
 {
-  int buf_len = MAX_HEADER_SIZE/4;
+  int buf_len = /*MAX_HEADER_SIZE/4*/15;
   char buf[buf_len];
   memset(buf, (int)'\0', buf_len);
   int rlen = 0, tlen = 0;
@@ -110,46 +104,55 @@ bassa_http_msg* bassa_parse_msg(int socket, int type)
   char *content = NULL;
   bassa_http_msg *htmsg = bassa_http_msg_new(type);
   while ((rlen=recv(socket, buf, buf_len, 0))>0)
+  {
+    content = (char*)realloc(content, tlen + rlen);
+    memcpy(content+tlen, buf, rlen);
+    tlen += rlen;
+    htmsg->total_recv = tlen;
+
+    printf ("xrem: %i\n", rem);
+    printf ("xtlen: %i\n", tlen);
+    printf ("xrlen: %i\n", rlen);
+    
+    if (!FIRST_LINE_READ(htmsg))
     {
-      content = (char*)realloc(content, tlen + rlen);
-      memcpy(content+tlen, buf, rlen);
-      tlen += rlen;
-      htmsg->total_recv = tlen;
-      if (!FIRST_LINE_READ(htmsg))
-        {
-          rem = bassa_get_first_line(content, tlen, htmsg);
-          if (rem == 0)
-            continue;
-          if (rem > 0)
-	  {
-	    printf ("Fist line rem: %i\n", rem);
-            bassa_parse_first_line (htmsg);
-	  }
-          if (rem == -1)
-            return NULL;
-         }
-       if (!HEADER_READ(htmsg))
-         {
-	   printf ("H Len: %i\n", rem);
-	   printf ("Total Len: %i\n", tlen);
-           rem += bassa_parse_header(content + (tlen-rem), 
-                                       tlen - rem, htmsg);
-           if (rem == 0)
-             {
-               htmsg->header = content + rem;
-               htmsg->first_line = content;
-	       /*htmsg->body += 2;
-	       htmsg->body_init_len -= 2;*/
-               break;
-             }
-           else if (rem > 0)
-             {
-               continue;
-             }
-           else
-             return NULL;
-         }
-     }
+      rem = bassa_get_first_line(content, tlen, htmsg);
+      if (rem == 0)
+	continue;
+      if (rem > 0)
+      {
+	printf ("Fist line rem: %i\n", rem);
+	bassa_parse_first_line (htmsg);
+      }
+      if (rem == -1)
+	return NULL;
+    }
+    if (!HEADER_READ(htmsg))
+    {
+      printf ("rem: %i\n", rem);
+      printf ("tlen: %i\n", tlen);
+      printf ("rlen: %i\n", rlen);
+      if (tlen == rlen)
+	rem = bassa_parse_header(content + (tlen-rem), rem, htmsg);
+      else
+	rem = bassa_parse_header(content + (tlen-rem), rem+rlen, htmsg);
+      if (rem == 0)
+      {
+	printf ("PARSING DONE\n");
+	//htmsg->header = content + rem;
+	//htmsg->first_line = content;
+	/*htmsg->body += 2;
+	  htmsg->body_init_len -= 2;*/
+	break;
+      }
+      else if (rem > 0)
+      {
+	continue;
+      }
+      else
+	return NULL;
+    }
+  }
   return htmsg;
 }
 
@@ -260,6 +263,8 @@ void bassa_http_add_field (bassa_http_msg *msg, char *field, int field_len)
 
 bassa_header_field* bassa_get_field (int field, bassa_header_field *hdf, int len)
 {
+  if (!hdf)
+    return NULL;
   int count;
   for (count = 0; count < len; count++)
     {

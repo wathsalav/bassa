@@ -121,7 +121,7 @@ void* bassa_client_process (void *arg)
               printf (">ACCEPTED NEW CONNECTION: %i\n", ++count);
               htmsg = bassa_parse_msg(bc->client_socket, HTTP_MSG_REQUEST);
               bassa_header_field *hdf = bassa_get_field (HOST, htmsg->hdr_fields, htmsg->field_count);
-              if (!hdf)
+	      if (!hdf)
                 {
                   bassa_http_msg_free(htmsg);
                   break;
