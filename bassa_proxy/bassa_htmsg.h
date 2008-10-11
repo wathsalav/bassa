@@ -81,7 +81,7 @@ void bassa_http_add_field (bassa_http_msg *msg, char *field, int field_len);
  * start is first address of the memory buffer.
  * len is the length of the memory buffer.
  */
-int bassa_get_first_line(char *start, int len, bassa_http_msg *htmsg);
+char* bassa_get_first_line(char *start, int len, bassa_http_msg *htmsg);
 
 /**
  * Return 0 if header parsing is complete.
@@ -90,7 +90,7 @@ int bassa_get_first_line(char *start, int len, bassa_http_msg *htmsg);
  * len is the total length of the buffer from message start to curent end.
  * start is the starting address of the last recv()ed memory buffer. 
  */
-int bassa_parse_header(char *start, int len, bassa_http_msg *htmsg);
+char* bassa_parse_header(char *start, int len, bassa_http_msg *htmsg);
 
 /**
  * Return bassa_http_msg after parsing the http msg.

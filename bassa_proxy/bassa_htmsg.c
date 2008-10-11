@@ -24,21 +24,21 @@ bassa_http_msg* bassa_http_msg_new(int type)
   return htmsg;
 }
 
-int bassa_get_first_line(char *start, int len, bassa_http_msg *htmsg)
+char* bassa_get_first_line(char *start, int len, bassa_http_msg *htmsg)
 {
   char *new_start = NULL;
   if (len > MAX_HEADER_SIZE)
     {
       htmsg->first_line_len = -1;
-      return -1;
+      return NULL;
     }
   char *first_line = start;
   new_start = (char*)memchr(first_line, (int)'\r', len);
   if (!new_start)
-    return 0;
+    return NULL;
   else if (len < (new_start - first_line)+2)
   {
-    return 0;
+    return NULL;
   }
   else if (len >= (new_start - first_line)+2)
     {
@@ -46,22 +46,22 @@ int bassa_get_first_line(char *start, int len, bassa_http_msg *htmsg)
       htmsg->first_line = first_line;
       htmsg->first_line_done = 1;
       htmsg->header_len += htmsg->first_line_len + 2;
-      return len - ((htmsg->first_line_len)+2);
+      return start+htmsg->header_len;
     }
   else
-    return -1;
+    return NULL;
 }
 
-int bassa_parse_header(char *start, int len, bassa_http_msg *htmsg)
+char* bassa_parse_header(char *start, int len, bassa_http_msg *htmsg)
 {
   int com_len = 0, rem_len = len;
   char *start_cur = start;
   if (len > MAX_HEADER_SIZE)
-    return -1;
+    return NULL;
   while(1)
   {
     //write(fileno(stdout), start_cur, len);
-    char *next_line = (char*)memchr(start_cur, (int)'\r', len);
+    char *next_line = (char*)memchr(start_cur, (int)'\r', rem_len);
     int new_line_len = 0;
     if (next_line != NULL)
     {
@@ -70,10 +70,10 @@ int bassa_parse_header(char *start, int len, bassa_http_msg *htmsg)
       rem_len -= new_line_len;	/*length of the remaining header, excluding \r\n*/
     }
     else
-      return rem_len;
+      return start_cur;
 
-    if (rem_len < 2)	/*if new_line is not a complete header return reverted rem_len*/
-      return (rem_len + new_line_len);
+    if (rem_len < 3)	/*if new_line is not a complete header return reverted rem_len*/
+      return start_cur;
     else	/*if new_line is a complete header then update rem_len, com_len and start_cur*/
     {
       com_len += 2;
@@ -88,7 +88,7 @@ int bassa_parse_header(char *start, int len, bassa_http_msg *htmsg)
       {
 	htmsg->header_len += 2;
 	htmsg->header_done = 1;
-	return 0;
+	return start_cur;
       }
     }
   }
@@ -96,12 +96,13 @@ int bassa_parse_header(char *start, int len, bassa_http_msg *htmsg)
 
 bassa_http_msg* bassa_parse_msg(int socket, int type)
 {
-  int buf_len = /*MAX_HEADER_SIZE/4*/15;
+  int buf_len = MAX_HEADER_SIZE/4;
   char buf[buf_len];
   memset(buf, (int)'\0', buf_len);
   int rlen = 0, tlen = 0;
   int rem = 0;
   char *content = NULL;
+  char *ncontent = NULL;
   bassa_http_msg *htmsg = bassa_http_msg_new(type);
   while ((rlen=recv(socket, buf, buf_len, 0))>0)
   {
@@ -109,48 +110,30 @@ bassa_http_msg* bassa_parse_msg(int socket, int type)
     memcpy(content+tlen, buf, rlen);
     tlen += rlen;
     htmsg->total_recv = tlen;
-
-    printf ("xrem: %i\n", rem);
-    printf ("xtlen: %i\n", tlen);
-    printf ("xrlen: %i\n", rlen);
     
     if (!FIRST_LINE_READ(htmsg))
     {
-      rem = bassa_get_first_line(content, tlen, htmsg);
-      if (rem == 0)
+      ncontent = bassa_get_first_line(content, tlen, htmsg);
+      if (ncontent == NULL)
 	continue;
-      if (rem > 0)
+      else
       {
-	printf ("Fist line rem: %i\n", rem);
+	rem = ncontent - content;
 	bassa_parse_first_line (htmsg);
       }
-      if (rem == -1)
-	return NULL;
     }
     if (!HEADER_READ(htmsg))
     {
-      printf ("rem: %i\n", rem);
-      printf ("tlen: %i\n", tlen);
-      printf ("rlen: %i\n", rlen);
-      if (tlen == rlen)
-	rem = bassa_parse_header(content + (tlen-rem), rem, htmsg);
-      else
-	rem = bassa_parse_header(content + (tlen-rem), rem+rlen, htmsg);
-      if (rem == 0)
+      ncontent = bassa_parse_header(content+rem, tlen-rem, htmsg);
+      rem = ncontent - content;
+      if (ncontent[0] == '\r')
       {
-	printf ("PARSING DONE\n");
-	//htmsg->header = content + rem;
-	//htmsg->first_line = content;
-	/*htmsg->body += 2;
-	  htmsg->body_init_len -= 2;*/
+	htmsg->header = content + htmsg->first_line_len;
+	htmsg->header_len -= htmsg->first_line_len;
 	break;
       }
-      else if (rem > 0)
-      {
-	continue;
-      }
       else
-	return NULL;
+	continue;
     }
   }
   return htmsg;
