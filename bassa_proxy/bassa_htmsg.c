@@ -42,11 +42,10 @@ char* bassa_get_first_line(char *start, int len, bassa_http_msg *htmsg)
   }
   else if (len >= (new_start - first_line)+2)
     {
-      htmsg->first_line_len = (new_start - first_line);
+      htmsg->first_line_len = (new_start - first_line) + 2;
       htmsg->first_line = first_line;
       htmsg->first_line_done = 1;
-      htmsg->header_len += htmsg->first_line_len + 2;
-      return start+htmsg->header_len;
+      return start+htmsg->first_line_len;
     }
   else
     return NULL;
@@ -72,7 +71,7 @@ char* bassa_parse_header(char *start, int len, bassa_http_msg *htmsg)
     else
       return start_cur;
 
-    if (rem_len < 3)	/*if new_line is not a complete header return reverted rem_len*/
+    if (rem_len < 4)	/*if new_line is not a complete header return reverted rem_len*/
       return start_cur;
     else	/*if new_line is a complete header then update rem_len, com_len and start_cur*/
     {
@@ -96,7 +95,7 @@ char* bassa_parse_header(char *start, int len, bassa_http_msg *htmsg)
 
 bassa_http_msg* bassa_parse_msg(int socket, int type)
 {
-  int buf_len = MAX_HEADER_SIZE/4;
+  int buf_len = MAX_HEADER_SIZE;
   char buf[buf_len];
   memset(buf, (int)'\0', buf_len);
   int rlen = 0, tlen = 0;
@@ -108,9 +107,11 @@ bassa_http_msg* bassa_parse_msg(int socket, int type)
   {
     content = (char*)realloc(content, tlen + rlen);
     memcpy(content+tlen, buf, rlen);
+    //Update htmsg->first_line ad content has been realloced
+    htmsg->first_line = content;
     tlen += rlen;
     htmsg->total_recv = tlen;
-    
+
     if (!FIRST_LINE_READ(htmsg))
     {
       ncontent = bassa_get_first_line(content, tlen, htmsg);
@@ -129,7 +130,8 @@ bassa_http_msg* bassa_parse_msg(int socket, int type)
       if (ncontent[0] == '\r')
       {
 	htmsg->header = content + htmsg->first_line_len;
-	htmsg->header_len -= htmsg->first_line_len;
+	htmsg->body = ncontent + 2;
+	htmsg->body_init_len = tlen - (htmsg->header_len + htmsg->first_line_len);
 	break;
       }
       else

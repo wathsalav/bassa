@@ -133,7 +133,8 @@ void* bassa_client_process (void *arg)
                 printf ("Error Sending\n");
               printf (">>>>Recieving Reply\n");
               htmsg2 = bassa_parse_msg(bc->server_socket, HTTP_MSG_REPLY);
-              //Sending recieved header and starting part of the body read with header
+              printf (">>>>Rceieved Reply\n");
+	      //Sending recieved header and starting part of the body read with header
               if (bassa_send_header (bc->client_socket, htmsg2->first_line, htmsg2->first_line_len,
                                  htmsg2->header, htmsg2->header_len)<0)
                 printf ("Error Sending Header\n");
@@ -146,11 +147,14 @@ void* bassa_client_process (void *arg)
                   char *clen = bassa_unpack_val(hdf->field, hdf->field_len);
                   int len = atoi(clen);
                   rem_len = len - htmsg2->body_init_len;
-                  printf ("XXX: %i\n", rem_len);                 
+		  printf ("Length: %i\n", len);
+		  printf ("Body_init_len: %i\n", htmsg->body_init_len);
+                  printf ("Rem_len: %i\n", rem_len);                 
                 }
               bassa_body_pipe (bc->server_socket, bc->client_socket, rem_len);
               bassa_http_msg_free(htmsg);
-              printf (">COMPLETED CONNECTION\n");         
+              printf (">COMPLETED CONNECTION\n");
+	      goto end_session;	      
             }
           if (FD_ISSET(*clskt, &es))
             {  
@@ -161,7 +165,7 @@ void* bassa_client_process (void *arg)
       else
         break;
     }
-  printf ("FINISHED\n");
+end_session: printf ("FINISHED\n");
   close(bc->client_socket);
   bassa_client_free(bc);
   free(clskt);
@@ -214,23 +218,17 @@ int bassa_make_connection (char *host_addr, int port)
 int bassa_send_header (int skt, char *first_line, int first_line_len, 
                        char *fields, int fields_len)
 {
-  FILE *fd = fopen("hdata", "w+"); //R_DEBUG
-  fwrite(first_line, first_line_len, 1, fd); //R_DEBUG
-  fwrite(fields, fields_len, 1, fd); //R_DEBUG
-  fwrite("\r\n", 2, 1, fd); //R_DEBUG
   if (bassa_send_first_line(skt, first_line, first_line_len) == -1)
     return -1;
   if (bassa_send_field(skt, fields, fields_len) == -1)
     return -1;
-  if (send(skt, "\r\n", 2, 0) == -1)
-    return -1;
-  fclose (fd); //R_DEBUG
   return 0;
 }
 
 int bassa_send_first_line (int skt, char *first_line, int first_line_len)
 {
-  printf ("Send_First_Line: %i\n", first_line_len);
+  //printf ("\n=============== START HEADERS ===============\n");
+  //write (fileno(stdout), first_line, first_line_len);
   if (send(skt, first_line, first_line_len, 0) == -1)
   {
     perror("SEND");
@@ -241,28 +239,27 @@ int bassa_send_first_line (int skt, char *first_line, int first_line_len)
 
 int bassa_send_field (int skt, char *field, int field_len)
 {
-  printf ("Send_Field: %i\n", field_len);
+  //write (fileno(stdout), field, field_len);
+  //printf ("\n================ END HEADERS  ===============\n");
   if (send(skt, field, field_len, 0) == -1)
   {
     perror("SEND");
     return -1;
   }
-  if (send(skt, "\r\n", 2, 0) <= 0)
-    return -1;
   return 0;
 }
 
 int bassa_send_body (int skt, char *body, int body_len)
 {
-  printf ("Bassa_Send_Body\n");
-  //printf ("BODY: %s\n", body);
-  FILE *fd = fopen("sdata", "w+"); //R_DEBUG
-  fwrite(body, body_len, 1, fd); //R_DEBUG
-  fclose (fd); //R_DEBUG
-  printf ("BODY_LEN: %i\n", body_len);
-  if (send(skt, body, body_len, 0) <= 0)
+  //printf ("\n=============== START BODY ===============\n");
+  //write (fileno(stdout), body, body_len);
+  //printf ("\n================  END BODY ===============\n");
+  if (send(skt, body, body_len, 0) < 0)
+  {
+    perror("Send body");
     return -1;
-  else 
+  }
+  else
     return 0;
 }
 
@@ -276,7 +273,6 @@ int bassa_body_pipe (int iskt, int oskt, int body_len)
     {
       if (errno == EINVAL || errno == ENOSYS)
       {
-	FILE *fd = fopen("sdata", "a+"); //R_DEBUG
 	while (rc < body_len)
 	{
 	  char *buff = (char*)malloc(DEFAULT_READ_SIZE);
@@ -284,21 +280,17 @@ int bassa_body_pipe (int iskt, int oskt, int body_len)
 	  if ((trc = recv(iskt, buff, DEFAULT_READ_SIZE, 0))<0)
 	  {
 	    free(buff);
-	    fclose (fd);  //R_DEBUG
 	    return -1;
 	  }
 	  rc += trc;
-	  fwrite(buff, trc, 1, fd); //R_DEBUG
 	  if ((sn = send(oskt, buff, trc, 0))<0)
 	  {
 	    free(buff);
-	    fclose (fd); //R_DEBUG
 	    return -1;
 	  }
 	  free(buff);
 	  buff = NULL;
 	}
-	fclose (fd); //R_DEBUG
 	return 0;
       }
       else
