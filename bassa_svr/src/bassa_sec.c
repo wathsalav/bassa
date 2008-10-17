@@ -1,5 +1,10 @@
 #include <bassa_sec.h>
 
+bassa_sec* bassa_sec_new()
+{
+
+}
+
 int bassa_sec_setuid(char *user)
 {
   if (!user)

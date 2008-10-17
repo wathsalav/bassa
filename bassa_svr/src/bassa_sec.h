@@ -6,12 +6,16 @@
 #include <pwd.h>
 #include <grp.h>
 #include <unistd.h>
+#include <openssl/pem.h>
 
 typedef struct
 {
 #ifdef POSIX
   mode_t fmode;
 #endif //POSIX
+  X509 *cert;
+  EVP_PKEY *rsa_privkey;
+  EVP_PKEY *rsa_pubkey;
 }
 bassa_sec_mode;
 

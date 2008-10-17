@@ -44,3 +44,26 @@ int bassa_transaction_fexist(char *fname)
 
 }
 
+void bassa_create_path(char *path)
+{
+  char *xpath = path;
+  char *path_tok = NULL;
+  char *prog_path = NULL;
+  while ((path_tok = strtok(xpath, "/")) != NULL)
+  {
+    if (prog_path == NULL)
+      prog_path = realloc (prog_path, 0+strlen(path_tok)+1);
+    else
+    {
+      prog_path = realloc (prog_path, strlen(prog_path)+strlen(path_tok)+2);
+      strcat(prog_path, "/");
+    }
+    strcat(prog_path, path_tok);
+    printf ("%s\n", prog_path);
+    mkdir(prog_path, 0760);
+    perror("MKDIR");
+    xpath = NULL;
+  }
+  return;
+}
+
