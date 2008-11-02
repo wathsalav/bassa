@@ -93,10 +93,10 @@ int bassa_set_timeout (bassa_client *bc)
 void* bassa_client_process (void *arg)
 {
   bassa_http_msg *htmsg = NULL, *htmsg2 = NULL;
-  struct sockaddr_in peer_addr;
+  //struct sockaddr_in peer_addr;
   int *clskt = (int*)(arg);
   bassa_client *bc = bassa_client_new();
-  bc->peer_addr = peer_addr;
+  //bc->peer_addr = peer_addr;
   bc->client_socket = *clskt;
   int ret = 0;
   struct timeval to;
@@ -137,6 +137,7 @@ void* bassa_client_process (void *arg)
 	      else
 		conn_stat = 1;
               char *host = bassa_unpack_val(hdf->field, hdf->field_len);
+	      printf ("Host: %s\n", host);
               bc->server_socket = bassa_make_connection ("192.248.16.123", 80);
               if (bassa_send_header (bc->server_socket, htmsg->first_line, htmsg->first_line_len,
                                      htmsg->header, htmsg->header_len)<0)
@@ -153,17 +154,20 @@ void* bassa_client_process (void *arg)
 	      printf ("Sent partial content and complete headers\n");
               hdf = bassa_get_field (CONTENT_LENGTH, htmsg2->hdr_fields, htmsg2->field_count);
               int rem_len = 0;
-              if (hdf)
-                {
-                  char *clen = bassa_unpack_val(hdf->field, hdf->field_len);
-                  int len = atoi(clen);
-                  rem_len = len - htmsg2->body_init_len;
-		  printf ("Length: %i\n", len);
-		  printf ("Body_init_len: %i\n", htmsg2->body_init_len);
-                  printf ("Rem_len: %i\n", rem_len);                 
-                }
+	      if (hdf)
+	      {
+		char *clen = bassa_unpack_val(hdf->field, hdf->field_len);
+		int len = atoi(clen);
+		rem_len = len - htmsg2->body_init_len;
+		printf ("Length: %i\n", len);
+		printf ("Body_init_len: %i\n", htmsg2->body_init_len);
+		printf ("Rem_len: %i\n", rem_len);                 
+	      }
 	      else
+	      {
+		printf ("COUNLD NOT FIND CONTENT LENGTH\n");
 		rem_len = -1;
+	      }
 	      printf ("Going to pipe body\n");
               bassa_body_pipe (bc->server_socket, bc->client_socket, rem_len);
               printf ("Piped body\n");
@@ -185,6 +189,7 @@ void* bassa_client_process (void *arg)
   close(bc->client_socket);
   bassa_client_free(bc);
   free(clskt);
+  return NULL;
 }
 
 int bsssa_client_connected (bassa_client *bc)
@@ -281,7 +286,6 @@ int bassa_send_body (int skt, char *body, int body_len)
 
 int bassa_body_pipe (int iskt, int oskt, int body_len)
 {
-  int sndret = 0;
   int rc = 0, trc = 0, sn = 0;
   printf ("Body Len: %i\n", body_len);
   if (body_len > 0)
