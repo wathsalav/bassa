@@ -29,7 +29,6 @@ function getBassaService(){
 		"trace"      => 1,
 		"exceptions" => 1,
 		"location" => "http://".$h.":".$p));
-		print_object($service->__getFunctions());
 	}
 	return $service;
 }
@@ -179,4 +178,15 @@ function printBassaUsage(){
 	print "<br/><b>Action:</b>  action={list,search,latest}";
 	print "<br/><b>Search Tocken:</b>  q";
 }
+
+/**
+ * To view available functions
+*/
+
+$service = getBassaService();
+foreach ( $service->__getFunctions() as $key1 => $val1) {
+        print "$val1";
+        print "<br><br>";
+}
+
 ?>
