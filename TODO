@@ -1,0 +1,18 @@
+Bassa proxy
+===========
+* Fixing bugs related to Content-Length of file being sent (basically a mismatch between actual size of the file and the size said by Content-Length)
+* Implementing Configuration module
+* Proxy module API
+* Module for communicating with Bassa content sharing system (Bassa_svr)
+* Implementing a Google search intercepting module and integrating it with Bassa content sharer's content search engine
+
+Bassa server (Content sharer)
+=============================
+* Implementing module API
+* Rewriting modules developed for earlier version
+* Implementing a content tagging service and search engine API
+* Implementing content search engine
+
+Bassa client
+============
+* Implementing bassa client web UI for listing content and downloading content with social networking aspects
