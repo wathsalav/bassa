@@ -1,8 +1,8 @@
 #!/bin/bash
 
-libtoolize --force
 aclocal
+libtoolize --force --copy
+autoheader
+automake --add-missing --copy
 autoconf
-touch config.h.in
-automake --add-missing
 ./configure
