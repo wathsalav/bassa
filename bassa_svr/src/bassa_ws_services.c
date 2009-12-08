@@ -47,10 +47,14 @@ cleanup: bassa_db_shutdown(dbd);
   return SOAP_OK;
 }
 
-int bassa__search(struct soap *soap, char *url, int offset, int sort_type, struct bassa__file_set *r)
+int bassa__search(struct soap *soap, int offset, int sort_type, char *url, struct bassa__file_set *r)
 {
+  printf("Search called\n");
   if (soap == NULL || url == NULL || r == NULL)
+  {
+    r->svr_msg = "FAULT: Invalid Parameter";
     return SOAP_FAULT;
+  }
   bassa_db *dbd = bassa_db_init();
   if (!dbd)
   {

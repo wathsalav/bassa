@@ -6,6 +6,7 @@
  * Wathsala Vithanage: wvi@ucsc.cmb.ac.lk
  */
 #include <unistd.h>
+#include <time.h>
 
 #include <bassa_db.h>
 #include <noc_filter_concur.h>
@@ -174,7 +175,7 @@ bassa_db* bassa_db_init()
       dbi_conn_select_db(dbd->conn, db_conf->dbicfg->db_name);
     }
   dbi_conn_set_option (dbd->conn, "dbname", db_conf->dbicfg->db_name);
-  sql_query = "CREATE TABLE IF NOT EXISTS cache_index(id BIGINT AUTO_INCREMENT, PRIMARY KEY(id), origin_url VARCHAR(1000) UNIQUE NOT NULL, file_name VARCHAR(512), object_url VARCHAR(1024), object_path VARCHAR(1024), status VARCHAR(1), date_time TIMESTAMP, content_length  BIGINT, hits BIGINT, proto_bf INT, client_uuid VARCHAR(256) NOT NULL)";
+  sql_query = "CREATE TABLE IF NOT EXISTS cache_index(id BIGINT AUTO_INCREMENT, PRIMARY KEY(id), origin_url VARCHAR(1000) UNIQUE NOT NULL, file_name VARCHAR(512), object_url VARCHAR(1024), object_path VARCHAR(1024), status VARCHAR(1), date_time TIMESTAMP, content_length  BIGINT, hits BIGINT, proto_bf INT, client_uuid VARCHAR(256) NOT NULL, start_time BIGINT, end_time BIGINT)";
   dbres = dbi_conn_queryf(dbd->conn, sql_query);
   if (!dbres)
     {
@@ -300,6 +301,7 @@ bassa_irequest* bassa_db_getpending(bassa_db *dbd)
       bassa_update_status(dbd, bobj->origin_url, PROCESSING);
       dbi_result_free (dbres);
       bassa_irequest* bir = bassa_irequest_new2 (bobj);
+      time(&(bobj->start_time));
       return bir;
     }
     else

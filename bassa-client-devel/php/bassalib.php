@@ -22,14 +22,17 @@
  * @return Bassa service Object
  */
 function getBassaService(){
-	global $service,$h,$p;
+	global $service;
+	$h="127.0.0.1";
+	$p="8095";
+	
 	if($service==null){
-		$service = new SoapClient("bassa.wsdl",array(
+		$service = new SoapClient("/home/bassa/bassa/trunk/bassa-client-devel/php/bassa.wsdl",array(
 		"soap_version"   => SOAP_1_2,
 		"trace"      => 1,
 		"exceptions" => 1,
 		"location" => "http://".$h.":".$p));
-		print_object($service->__getFunctions());
+		//print_object($service->__getFunctions());
 	}
 	return $service;
 }
@@ -77,7 +80,7 @@ function add($url,$cLength,$authToken,$uid){
 		print($e->faultstring);
 		return false;
 	}
-	bassaDebug();
+	//bassaDebug();
 	return $result;
 }
 
@@ -96,7 +99,7 @@ function getLatestDownloads($number=0){
 		print($e->faultstring);
 		return false;
 	}
-	bassaDebug();
+	//bassaDebug();
 	if($results['total'] == 0) return false;
 	else return $results;
 }
@@ -114,7 +117,7 @@ function getAllDownloads($offset=0,$sorttype=0){
 		print($e->faultstring);
 		return false;
 	}
-	bassaDebug();
+	//bassaDebug();
 	if($results && $results['total'] == 0) return false;
 	else return $results;
 }
@@ -133,7 +136,7 @@ function getUserDownloads($userid,$offset=0,$sorttype=0){
 		print($e->faultstring);
 		return false;
 	}
-	bassaDebug();
+	//bassaDebug();
 	if($results && $results['total'] == 0) return false;
 	else return $results;
 }
@@ -152,7 +155,7 @@ function getStatus($id){
 		print($e->faultstring);
 		return false;
 	}
-	bassaDebug();
+	//bassaDebug();
 	return $result;
 }
 
