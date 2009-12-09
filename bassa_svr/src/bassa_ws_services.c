@@ -22,7 +22,7 @@ int bassa__enqueue(struct soap *soap, struct bassa__request *r, char **response)
     return SOAP_OK;
   }
   bassa_uri *bu = bassa_uri_new(r->url);
-  bassa_irequest *bir = bassa_irequest_new1(bu, r->content_length);
+  bassa_irequest *bir = bassa_irequest_new1(bu, r->contentLength);
   if (r->uuid)
     bir->bobj->uuid = r->uuid;
   else

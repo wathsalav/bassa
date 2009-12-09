@@ -163,10 +163,22 @@ bassa_sched_htproc(void *param)
   bassa_test_cancel();
   if (btr)
   {
-    bassa_transaction_open(btr);
-    bassa_transaction_download(btr);
-    bassa_transaction_free(btr);
-    btr = NULL;
+    if (bassa_transaction_open(btr) > 0)
+    {
+      bassa_transaction_download(btr);
+      bassa_transaction_free(btr);
+      btr = NULL;
+    }
+    else
+    {
+      bassa_transaction_free(btr);
+      btr = NULL;
+      birq->bobj->status = FAILED;
+    }
+  }
+  else
+  {
+    birq->bobj->status = FAILED;
   }
   bassa_disable_cancel(NULL, NULL);
   bassa_list_adrm_r(clist, BASSA_LIST_ADD, birq, 0);

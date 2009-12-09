@@ -64,7 +64,10 @@ SELECT:if ((rt=select(t->fifo_fd+1, &readfs, NULL, NULL, NULL)) < 0)
       return rt;
     }
     else
+    {
+      FD_SET(t->fifo_fd, &readfs);
       goto SELECT;
+    }
   }
   else
   {

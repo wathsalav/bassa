@@ -13,25 +13,25 @@
 #define AUTH_OK 100
 #define AUTH_FAIL 200
 
-struct bassa__auth_request
+struct bassa__authRequest
 {
   char *uid;	//User name
   char *passwd;	//Password
 };
 
-struct bassa__auth_token
+struct bassa__authToken
 {
-  unsigned long int auth_token_val;
-  unsigned long int auth_token_timeout;
-  char *auth_message;
-  int auth_status;
+  unsigned long int authTokenVal;
+  unsigned long int authTokenTimeout;
+  char *authMessage;
+  int authStatus;
 };
 
 struct bassa__request
 {
   char *url;
-  unsigned long int content_length;
-  unsigned long int auth_token_val;
+  unsigned long int contentLength;
+  unsigned long int authTokenVal;
   char *uuid;
 };
 
