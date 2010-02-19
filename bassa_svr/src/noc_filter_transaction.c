@@ -181,8 +181,8 @@ int bassa_transaction_open(bassa_transaction  *transaction)
 {
 #ifdef DEBUG
   printf ("bassa_transaction_OPEN\n");
-#endif //DEBUG
   printf ("XOXOXOXO: %s\n", transaction->file_part);
+#endif //DEBUG
   transaction->local_file = fopen (transaction->file_part, "a+");
   if (!transaction->local_file)
   {

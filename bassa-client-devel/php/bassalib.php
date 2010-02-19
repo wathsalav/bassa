@@ -16,6 +16,13 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+class request{
+	public $url;
+	public $contentLength;
+	public $authTokenVal;
+	public $uuid;
+}
+
 /**
  * Returns a Bassa service object
  *
@@ -32,7 +39,6 @@ function getBassaService(){
 		"trace"      => 1,
 		"exceptions" => 1,
 		"location" => "http://".$h.":".$p));
-		//print_object($service->__getFunctions());
 	}
 	return $service;
 }
@@ -51,7 +57,7 @@ function search($token,$offset=0,$sorttype=0){
 		print($e->faultstring);
 		return false;
 	}
-	bassaDebug();
+	//bassaDebug();
 	if($results['total'] == 0) return false;
 	else return $results;
 }
@@ -67,20 +73,22 @@ function search($token,$offset=0,$sorttype=0){
 function add($url,$cLength,$authToken,$uid){
 	global $service;
 
-	$request = new object();
+	$request = new request();
 	$request->url = $url;
-	$request->{content-length} = $cLength;
-	$request->{auth-token-val} = $authToken;
+	$request->contentLength = $cLength;
+	$request->authTokenVal = $authToken;
 	$request->uuid = $uid;
 
 	$service = getBassaService();
 	try{
-		$result = $service->enqueue($request);
+		$result = $service->__soapCall("enqueue", array($request));
 	}catch(SoapFault $e){
 		print($e->faultstring);
 		return false;
 	}
 	//bassaDebug();
+	//printBassaUsage();
+	//print_r ($request);
 	return $result;
 }
 
@@ -155,7 +163,7 @@ function getStatus($id){
 		print($e->faultstring);
 		return false;
 	}
-	//bassaDebug();
+	bassaDebug();
 	return $result;
 }
 
@@ -182,4 +190,6 @@ function printBassaUsage(){
 	print "<br/><b>Action:</b>  action={list,search,latest}";
 	print "<br/><b>Search Tocken:</b>  q";
 }
+
+
 ?>

@@ -251,10 +251,11 @@ int bassa_db_update_cache(bassa_db *dbd, bassa_irequest *irq)
     return -1;
   char *sql_query = NULL;
   dbi_result *dbres = NULL;
-  sql_query = "UPDATE cache_index SET object_url='%s', object_path='%s', status='%s', content_length=%i, proto_bf=%i WHERE origin_url='%s'";
+  sql_query = "UPDATE cache_index SET object_url='%s', object_path='%s', status='%s', content_length=%i, proto_bf=%i, start_time=%lu, end_time=%lu WHERE origin_url='%s'";
   dbres = dbi_conn_queryf(dbd->conn, sql_query, irq->bobj->object_url, 
 			  irq->bobj->object_path, irq->bobj->status, 
 			  irq->bobj->content_length, irq->bobj->proto_bf,
+                          irq->bobj->start_time, irq->bobj->end_time,
 			  irq->bobj->origin_url);
   if(!dbres)
     return -1;

@@ -12,17 +12,26 @@
 
 int bassa__enqueue(struct soap *soap, struct bassa__request *r, char **response)
 { 
+  bassa_uri *bu = NULL;
+  bassa_irequest *bir = NULL;
+  bassa_trigger *btrig = NULL;
+  bassa_db *dbd = NULL; 
   if (soap == NULL || r == NULL)
     return SOAP_FAULT;
-  bassa_trigger *btrig = bassa_trigger_new(conf->svrcfg->server_event_bus);
-  bassa_db *dbd = bassa_db_init();
+  btrig = bassa_trigger_new(conf->svrcfg->server_event_bus);
+  dbd = bassa_db_init(); 
   if (!dbd)
   {
     *response = "FAIL: Internal Server Error";
     return SOAP_OK;
   }
-  bassa_uri *bu = bassa_uri_new(r->url);
-  bassa_irequest *bir = bassa_irequest_new1(bu, r->contentLength);
+  if (!r->url)
+  {
+    *response = "FAIL: No URL Sprecified";
+    goto cleanup;
+  }
+  bu = bassa_uri_new(r->url);
+  bir = bassa_irequest_new1(bu, r->contentLength);
   if (r->uuid)
     bir->bobj->uuid = r->uuid;
   else

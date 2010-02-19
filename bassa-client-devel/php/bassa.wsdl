@@ -25,25 +25,25 @@
   elementFormDefault="unqualified"
   attributeFormDefault="unqualified">
   <import namespace="http://www.w3.org/2003/05/soap-encoding"/>
-  <complexType name="auth-request">
+  <complexType name="authRequest">
    <sequence>
      <element name="uid" type="xsd:string" minOccurs="0" maxOccurs="1" nillable="true"/>
      <element name="passwd" type="xsd:string" minOccurs="0" maxOccurs="1" nillable="true"/>
    </sequence>
   </complexType>
-  <complexType name="auth-token">
+  <complexType name="authToken">
    <sequence>
-     <element name="auth-token-val" type="xsd:unsignedLong" minOccurs="1" maxOccurs="1"/>
-     <element name="auth-token-timeout" type="xsd:unsignedLong" minOccurs="1" maxOccurs="1"/>
-     <element name="auth-message" type="xsd:string" minOccurs="0" maxOccurs="1" nillable="true"/>
-     <element name="auth-status" type="xsd:int" minOccurs="1" maxOccurs="1"/>
+     <element name="authTokenVal" type="xsd:unsignedLong" minOccurs="1" maxOccurs="1"/>
+     <element name="authTokenTimeout" type="xsd:unsignedLong" minOccurs="1" maxOccurs="1"/>
+     <element name="authMessage" type="xsd:string" minOccurs="0" maxOccurs="1" nillable="true"/>
+     <element name="authStatus" type="xsd:int" minOccurs="1" maxOccurs="1"/>
    </sequence>
   </complexType>
   <complexType name="request">
    <sequence>
      <element name="url" type="xsd:string" minOccurs="0" maxOccurs="1" nillable="true"/>
-     <element name="content-length" type="xsd:unsignedLong" minOccurs="1" maxOccurs="1"/>
-     <element name="auth-token-val" type="xsd:unsignedLong" minOccurs="1" maxOccurs="1"/>
+     <element name="contentLength" type="xsd:unsignedLong" minOccurs="1" maxOccurs="1"/>
+     <element name="authTokenVal" type="xsd:unsignedLong" minOccurs="1" maxOccurs="1"/>
      <element name="uuid" type="xsd:string" minOccurs="0" maxOccurs="1" nillable="true"/>
    </sequence>
   </complexType>
@@ -249,7 +249,7 @@
 </binding>
 
 <service name="bassa">
- <documentation>gSOAP 2.7.9k generated service definition</documentation>
+ <documentation>gSOAP 2.7.9l generated service definition</documentation>
  <port name="bassa" binding="tns:bassa">
   <SOAP:address location="http://localhost:8095/bassa"/>
  </port>

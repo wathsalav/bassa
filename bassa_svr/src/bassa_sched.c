@@ -69,6 +69,7 @@ bassa_sched_start(void* param)
 	if ((bln = bassa_list_adrm_r(clist, BASSA_LIST_REM, NULL, 0)))
 	{
 	  birq = bln->list_data;
+          birq->bobj->end_time = time(NULL);
 	  bassa_db_update_cache(bs->dbd, birq);
 	  bassa_irequest_free(birq);
 	  birq = NULL;
@@ -103,7 +104,10 @@ bassa_sched_start(void* param)
 	  printf ("Initialize Process\n");
 	  bassa_irequest *sbirq = bassa_db_getpending(bs->dbd);
 	  if (sbirq != NULL)
+          {
+            sbirq->bobj->start_time = time(NULL);
 	    bassa_nowait_spawn(htpool, bassa_sched_htproc, sbirq);
+          }
 	}
 	break;
       case BASSA_ALARM_FIRED:
@@ -163,7 +167,7 @@ bassa_sched_htproc(void *param)
   bassa_test_cancel();
   if (btr)
   {
-    if (bassa_transaction_open(btr) > 0)
+    if (!bassa_transaction_open(btr))
     {
       bassa_transaction_download(btr);
       bassa_transaction_free(btr);
