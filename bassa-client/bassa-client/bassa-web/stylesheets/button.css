@@ -1,0 +1,80 @@
+.button_ep {
+    padding: 4px 10px 3px 25px;
+    border: solid 1px #8AB134;
+    position: relative;
+    cursor: pointer;
+    display: inline-block;
+    background-image: url( '../images/bkg.png' );
+    background-repeat: repeat-x;
+    font-size: 12px;
+    height: 16px;
+    text-decoration: none;
+    color: #40740D;
+    -moz-border-radius-bottomleft: 5px;
+    -moz-border-radius-bottomright: 5px;
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-topright: 5px;
+}
+.button_ep img {
+    position: absolute;
+    top: -4px;
+    left: -12px;
+    border: none;
+}
+.button-ep:hover {
+    color: #8AB134;
+}       
+
+.button_lo {
+    padding: 4px 10px 3px 25px;
+    border: solid 1px #6699cc;
+    position: relative;
+    cursor: pointer;
+    display: inline-block;
+    background-image: url( '../images/bkg_blue.png' );
+    background-repeat: repeat-x;
+    font-size: 12px;
+    height: 16px;
+    text-decoration: none;
+    color: #1b729a;
+    -moz-border-radius-bottomleft: 5px;
+    -moz-border-radius-bottomright: 5px;
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-topright: 5px;
+}
+.button_lo img {
+    position: absolute;
+    top: -4px;
+    left: -12px;
+    border: none;
+}
+.button-lo:hover {
+    color: #16a7fb;
+}
+
+.button_su {
+    padding: 4px 10px 3px 25px;
+    border: solid 1px #8AB134;
+    position: relative;
+    cursor: pointer;
+    display: inline-block;
+    background-image: url( '../images/bkg.png' );
+    background-repeat: repeat-x;
+    font-size: 12px;
+    height: 16px;
+    text-decoration: none;
+    color: #40740D;
+    -moz-border-radius-bottomleft: 5px;
+    -moz-border-radius-bottomright: 5px;
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-topright: 5px;
+}
+.button_su img {
+    position: absolute;
+    top: -4px;
+    left: -12px;
+    border: none;
+}
+.button-su:hover {
+    color: #8AB134;
+}

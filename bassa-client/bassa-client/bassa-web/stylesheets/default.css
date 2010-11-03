@@ -1,0 +1,124 @@
+/* CSS Document */
+
+*{
+    margin:0px;
+    padding:2px;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    color: #0E4456;
+    background:url(../images/header_bg.png) repeat-x;
+}
+
+h1, h2, h3, h4{
+}
+
+a{
+    text-decoration:none;
+}
+
+fieldset{
+    border:#E1E1E1 solid 1px;
+    margin:10px 5px 5px 5px;
+    display:inline;
+    padding:5px 5px 5px 5px;
+    overflow:auto;
+    vertical-align:top;
+}
+
+#wrapper{
+    width:900px;
+    margin:auto;
+}
+
+#header{
+    width:900px;
+    height:110px;
+}
+
+#header a{   
+    font-size:13px;
+}
+
+#logo{
+    width:250px;
+    height:90px;
+    border-radius:5px;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+}
+
+#search{
+    width:300px;
+    padding:5px;
+}
+
+#sing{
+    width:325px;
+    height:90px;
+    padding:5px;
+    margin-left: 10px;
+    vertical-align: top;
+}
+
+#login{
+	margin-left: 10px;
+	padding: 10px;
+}
+
+#menu{
+    height:50px;
+    margin:auto;
+    width:625px;/*change*/
+}
+
+#index_menu{
+    margin:auto;
+    height:50px;
+    width:500px;
+}
+
+#content{
+    width:890px;/*change*/
+    padding:10px 5px 5px 5px;
+    border:#CECECE solid 1px;
+    background: #FFFFFF;
+    height:auto;/*change*/
+    padding-left:10px;
+    padding-right:10px;
+}
+
+#footer{
+    height:50px;
+    background:url(../images/footer_bg.png);
+    display: block;
+}
+
+#title{
+    height:20px;
+    padding:5px 5px 5px 5px;
+    background:url(../images/title_bg.png);
+    border:#093 solid 1px;
+    border-radius:5px;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    font-size:13px;
+    color:#336633;
+}
+
+#title a{
+    color:#565656;
+    font-size:13px;
+}
+
+#multimedia{
+    padding-left:100px;
+}
+
+#png{
+    height:30px;
+    width:30px;
+}
+

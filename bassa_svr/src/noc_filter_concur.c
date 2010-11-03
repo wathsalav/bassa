@@ -23,8 +23,11 @@ bassa_task_pool* bassa_task_pool_new (int max_tasklets)
 
 bassa_mutex* bassa_mutex_new ()
 {
-  bassa_mutex *bm = (bassa_mutex*)
-    malloc(sizeof(bassa_mutex));
+  bassa_mutex *bm = (bassa_mutex*)malloc(sizeof(bassa_mutex));
+#ifdef POSIX_THREADS  
+  pthread_mutex_t _lock = PTHREAD_MUTEX_INITIALIZER;
+  bm->lock = _lock;
+#endif //POSIX_THREADS
   return bm;
 }
 
@@ -191,9 +194,9 @@ int bassa_disable_cancel(int* oldstate, int* oldtype)
 int bassa_mutex_lock(bassa_mutex *bm)
 {
 #ifdef POSIX_THREADS
-  pthread_mutex_t mut;
-  bm->lock = mut;
-  pthread_mutex_init(&(bm->lock), NULL);
+  //pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
+  //bm->lock = mut;
+  //pthread_mutex_init(&(bm->lock), NULL);
   return pthread_mutex_lock(&(bm->lock));
 #endif //POSIX_THREADS
 }

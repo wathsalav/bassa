@@ -43,4 +43,5 @@ int bassa_sec_setowner(char *user, char *cgroup, char *file)
 
 int bassa_sec_setmode(bassa_sec_mode *mode, char *file)
 {
+  return 0;
 }
