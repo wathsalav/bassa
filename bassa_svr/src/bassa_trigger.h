@@ -13,6 +13,7 @@
 #define BASSA_DB_UPDATED 5
 
 typedef int type_t;
+static int refcount = 0;
 
 typedef struct
 {

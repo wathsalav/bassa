@@ -1,12 +1,25 @@
 #include <libxml/uri.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include <bassa_uri.h>
 #include <bassa_uri.h>
+#include <noc_filter_transaction.h>
 
 bassa_uri *bassa_uri_new (char *uri)
 {
   bassa_uri *bu = (bassa_uri*)malloc(sizeof(bassa_uri));
+  bu->scheme = NULL;
+  bu->opaque = NULL;
+  bu->authority = NULL;
+  bu->server = NULL;
+  bu->port = 0;
+  bu->user = NULL;
+  bu->path = NULL;
+  bu->query = NULL;
+  bu->fragment = NULL;
+  bu->file_name = NULL;
+  bu->uri = NULL;
   bu->uri = bassa_uri_unescape(uri);
   xmlURI *pURI = xmlParseURI(bu->uri);
   if (pURI)
@@ -25,7 +38,11 @@ bassa_uri *bassa_uri_new (char *uri)
     return bu;
   }
   else
+  {
+    if (bu)
+      bassa_uri_free(bu);
     return NULL;
+  }
 }
 
 /**

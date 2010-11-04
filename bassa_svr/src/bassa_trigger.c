@@ -37,6 +37,7 @@ fifo_open:bt->fifo_fd = open(bt->fifo_name, O_RDWR, 0);
     bt = NULL;
     return NULL;
   }
+  refcount++;
   return bt;
 }
 
@@ -44,7 +45,9 @@ void bassa_trigger_free (bassa_trigger *btrig)
 {
   if (btrig)
   {
-    close(btrig->fifo_fd);
+    refcount--;
+    if (!refcount)
+      close(btrig->fifo_fd);
     free (btrig);
     btrig = NULL;
   }

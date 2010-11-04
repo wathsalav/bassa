@@ -19,12 +19,14 @@ int main(int argc, char *argv[])
   printf ("<html>\n<head></head>\n<body>\n");
   struct bassa__request br;
   char *url = getenv("QUERY_STRING");
-  char *nurl = NULL;
+  /*char *nurl = NULL;
   if (strlen(url) > strlen(RVAL_URL))
   {
     nurl = url+strlen(RVAL_URL)+1;
   }
-  br.url = nurl;
+  br.url = nurl;*/
+  br.url = url;
+  printf(">>>>>>>>>>>>>>>>> %s\n", br.url);
   br.uuid = "wathsala"; 
   char *response = NULL;
   struct soap s;

@@ -30,7 +30,12 @@ int bassa__enqueue(struct soap *soap, struct bassa__request *r, char **response)
     *response = "FAIL: No URL Sprecified";
     goto cleanup;
   }
-  bu = bassa_uri_new(r->url);
+  bu = bassa_uri_new(r->url); 
+  if (!bu)
+  {
+    *response = "FAIL: Bad URL Submitted";
+    goto cleanup;
+  }
   bir = bassa_irequest_new1(bu, r->contentLength);
   if (r->uuid)
     bir->bobj->uuid = r->uuid;

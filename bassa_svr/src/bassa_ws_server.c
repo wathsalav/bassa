@@ -13,6 +13,7 @@ void* bassa_ws_start(void *arg)
   soap.max_keep_alive = 100; // max keep-alive sequence 
   struct soap *tsoap; 
   SOAP_SOCKET m, s; 
+  soap.bind_flags = SO_REUSEADDR;
   m = soap_bind(&soap, conf->svrcfg->server_address, 
                 conf->svrcfg->server_port, 
                 conf->svrcfg->server_backlog); 
