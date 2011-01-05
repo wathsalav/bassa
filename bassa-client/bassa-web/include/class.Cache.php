@@ -1,6 +1,6 @@
 <?php
 
-require '/home/bassa/bassa/trunk/bassa-client-devel/php/bassalib.php';
+require '../php/bassalib.php';
 
 class Cache {
 
