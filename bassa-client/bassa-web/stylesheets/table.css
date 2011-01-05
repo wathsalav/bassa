@@ -1,0 +1,39 @@
+/* ------------------
+ styling for the tables 
+   ------------------   */
+#gradient-style
+{
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	font-size: 13px;
+	margin: 20px;	
+	text-align: left;
+	border-collapse: collapse;
+}
+#gradient-style th
+{
+	font-size: 13px;
+	font-weight: bold;
+	padding: 8px;
+	background: url(../images/table.png) repeat-x;
+	border-bottom: 1px solid #fff;
+	color: #039;
+}
+#gradient-style td
+{
+	padding: 8px; 
+	border-bottom: 1px solid #fff;
+	color: #666666;
+	border-top: 1px solid #fff;
+	background: #e5f6ff url('table-images/gradback.png') repeat-x;
+}
+#gradient-style tfoot tr td
+{
+	background: #c4e7fb;
+	font-size: 12px;
+	color: #99c;
+}
+#gradient-style tbody tr:hover td
+{
+	background: #fafaf4 url('table-images/gradhover.png') repeat-x;
+	color: #339;
+}
