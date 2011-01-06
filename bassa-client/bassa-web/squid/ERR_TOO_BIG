@@ -1,0 +1,9 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"> <html><head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> <title>We Recommend You to add this File to the Offline Download Queue</title> <style type="text/css"><!--   %l  body :lang(fa) { direction: rtl; font-size: 100%; font-family: Tahoma, Roya, sans-serif; float: right; } :lang(he) { direction: rtl; float: right; }  --></style> </head><body> <div id="titles"> <h1>ALERT</h1> <h2>The requested File is too large to be downloaded at this moment. Please add it to the offline download queue by clicking on Yes button!</h2> </div> <hr>  <div id="content"> <p>You requested <a href="%U">%U</a></p>  <blockquote id="error"> <p><b>
+<br>
+<form name="redirect" action="http://192.248.16.44/bassa/index.php" method="post"></br>Do you wish to add this request to BASSA offline download queue? </br>
+<input type="Hidden" name="url" value="%u">
+<input type="submit" name="Yes" value="YES"
+onclick="this.form.target='_blank';return true;"> </pre>
+<input type="button" name="No" value="NO" onClick="history.go(-1);"/>
+</form>
+<p>Your cache administrator is <a href="mailto:%w%W">%w</a>.</p> <br> </div>  <hr> <div id="footer"> <p>Generated %T by %h (%s)</p> <!-- %c --> </div> </body></html> 
