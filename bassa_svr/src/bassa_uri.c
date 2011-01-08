@@ -121,7 +121,7 @@ char *bassa_uri_get_filename(char *path)
   {
     if(path[i] =='/')
     {
-      xpath = &path[i];
+      xpath = &path[i+1];
       filename = strdup(xpath);
       break;
     }

@@ -41,10 +41,11 @@ bassa_irequest* bassa_irequest_new1(bassa_uri *uri,
   if (bir->buri->file_name != NULL)
     {
       int len = strlen(conf->repocfg->repo_path)
-	+ strlen(bir->buri->file_name) + 1;
+	+ strlen(bir->buri->file_name) + 2;
       bir->bobj->object_path = (char*)malloc(len);
       memset (bir->bobj->object_path, (int)'\0', len);
       strcpy (bir->bobj->object_path, conf->repocfg->repo_path);
+      strcat (bir->bobj->object_path, "/");
       strcat (bir->bobj->object_path, bir->buri->file_name);
     }
   else
@@ -52,10 +53,11 @@ bassa_irequest* bassa_irequest_new1(bassa_uri *uri,
   if (bir->buri->file_name != NULL)
     {
       int len = strlen(conf->repocfg->url)
-	+ strlen(bir->buri->file_name) + 1;
+	+ strlen(bir->buri->file_name) + 2;
       bir->bobj->object_url = (char*)malloc(len);
       memset (bir->bobj->object_url, (int)'\0', len);
       strcpy (bir->bobj->object_url, conf->repocfg->url);
+      strcat (bir->bobj->object_url, "/");
       strcat (bir->bobj->object_url, bir->buri->file_name);
     }
   else
