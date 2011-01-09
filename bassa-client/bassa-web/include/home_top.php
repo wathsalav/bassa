@@ -15,7 +15,7 @@ require_once 'class.Cache.php';
                     <tr>
                         <th scope="col"></th>
                         <th scope="col" width="700">File</th>
-                        <th scope="col">Downloads</th>
+                        <th scope="col">Download</th>
                         <th scope="col"></th>
                     </tr>
                 </thead>
@@ -38,7 +38,10 @@ require_once 'class.Cache.php';
                     <tr>
                         <th scope="col"></th>
                         <th scope="col" width="700">File</th>
-                        <th scope="col">Downloads</th>
+                        <th scope="col">Size</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Download</th>
                         <th scope="col"></th>
                     </tr>
                 </thead>

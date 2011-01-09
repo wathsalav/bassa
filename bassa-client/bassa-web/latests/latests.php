@@ -9,9 +9,10 @@
             <th scope="col" ></th>
             <th scope="col" width="490">File</th>
             <th scope="col">File Size</th>
-            <th scope="col">States</th>
+            <th scope="col">Status</th>
             <th scope="col" width="80">Date</th>
-            <th scope="col"></th>
+            <th scope="col" width="80">Download</th>
+            <!--<th scope="col"></th>-->
         </tr>
     </thead>
     <tfoot>
