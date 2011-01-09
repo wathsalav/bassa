@@ -231,7 +231,7 @@ int bassa_db_queue(bassa_db *dbd, bassa_irequest *irq)
     return -1;
   char *sql_query = NULL;
   dbi_result *dbres = NULL;
-  sql_query = "INSERT INTO cache_index(origin_url, file_name, object_url, object_path, status, content_length, hits, proto_bf, client_uuid) VALUES('%s', '%s', '%s', '%s','%s', %i, %i, %i, '%s')"; 
+  sql_query = "INSERT INTO cache_index(origin_url, file_name, object_url, object_path, status, content_length, hits, proto_bf, client_uuid) VALUES('%s', '%s', '%s', '%s','%s', %lu, %i, %i, '%s')"; 
   dbres = dbi_conn_queryf(dbd->conn, sql_query, irq->buri->uri, 
       irq->buri->file_name, irq->bobj->object_url, 
       irq->bobj->object_path, irq->bobj->status, 
@@ -260,7 +260,7 @@ int bassa_db_update_cache(bassa_db *dbd, bassa_irequest *irq)
     return -1;
   char *sql_query = NULL;
   dbi_result *dbres = NULL;
-  sql_query = "UPDATE cache_index SET object_url='%s', object_path='%s', status='%s', content_length=%i, proto_bf=%i, start_time=%lu, end_time=%lu WHERE origin_url='%s'";
+  sql_query = "UPDATE cache_index SET object_url='%s', object_path='%s', status='%s', content_length=%lu, proto_bf=%i, start_time=%lu, end_time=%lu WHERE origin_url='%s'";
   dbres = dbi_conn_queryf(dbd->conn, sql_query, irq->bobj->object_url, 
 			  irq->bobj->object_path, irq->bobj->status, 
 			  irq->bobj->content_length, irq->bobj->proto_bf,
@@ -412,7 +412,7 @@ bassa_object_set *bassa_list_all(bassa_db *dbd, int offset, int sort_type)
     st = "DESC";
   else
     st = "ASC";
-  sql_query = "SELECT * FROM cache_index ORDER BY date_time %s LIMIT %i OFFSET %i";
+  sql_query = "SELECT * FROM cache_index ORDER BY start_time %s LIMIT %i OFFSET %i";
 #ifdef DEBUG
   printf (sql_query, st, RESULT_SET_SIZE, offset);
   printf ("\n");
@@ -464,7 +464,7 @@ bassa_object_set *bassa_search_file(bassa_db *dbd, char *file_name,
     st = "DESC";
   else
     st = "ASC";
-  sql_query = "SELECT * FROM cache_index WHERE origin_url LIKE '%%%s%%' OR file_name LIKE '%%%s%%' ORDER BY date_time %s LIMIT %i OFFSET %i";
+  sql_query = "SELECT * FROM cache_index WHERE origin_url LIKE '%%%s%%' OR file_name LIKE '%%%s%%' ORDER BY start_time %s LIMIT %i OFFSET %i";
 #ifdef DEBUG
   printf (sql_query, file_name, file_name, st, RESULT_SET_SIZE, offset);
   printf ("\n");
@@ -506,7 +506,7 @@ bassa_object_set *bassa_list_latest(bassa_db *dbd, int offset)
     return NULL;
   char *sql_query = NULL;
   dbi_result *dbres = NULL;
-  sql_query = "SELECT * FROM cache_index ORDER BY date_time DESC LIMIT %i OFFSET %i";
+  sql_query = "SELECT * FROM cache_index ORDER BY start_time DESC LIMIT %i OFFSET %i";
 #ifdef DEBUG
   printf (sql_query, RESULT_SET_SIZE, offset);
   printf ("\n");
@@ -584,7 +584,7 @@ bassa_object_set *bassa_list_byuuid(bassa_db *dbd, char *uuid, int offset, int s
     st = "DESC";
   else
     st = "ASC";
-  sql_query = "SELECT * FROM cache_index WHERE client_uuid='%s' ORDER BY date_time %s LIMIT %i OFFSET %i";
+  sql_query = "SELECT * FROM cache_index WHERE client_uuid='%s' ORDER BY start_time %s LIMIT %i OFFSET %i";
 #ifdef DEBUG
   printf (sql_query, uuid, st, RESULT_SET_SIZE, offset);
   printf ("\n");
