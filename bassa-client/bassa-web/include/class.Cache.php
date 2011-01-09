@@ -24,7 +24,7 @@ class Cache {
       echo "<td>".$this->calSize($results['content-length'][$i])."</td>";
       echo '<td><img src="http://'.$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'].'/bassa/images/'.$this->detStatus($results['status'][$i]).'" border="0"/></td>';
       echo '<td align="right">' . $this->detDate($results['start-time'][$i]) . '</td>';
-      echo '<td align="center"><a href="' . $results['local-url'][$i] . '"><img src="http://'.$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'].'/bassa/images/Play Green Button.png" border="0"/></a></td>';
+      echo '<td align="center"><a href="' . $results['local-url'][$i] . '"><img src="http://'.$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'].'/bassa/images/download_now.png" border="0"/></a></td>';
       echo "</tr>";
     }
     if ($results['total'] == $results['object-limit'])
@@ -63,7 +63,7 @@ class Cache {
       echo "<td>".$this->calSize($results['content-length'][$i])."</td>";
       echo '<td><img src="http://'.$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'].'/bassa/images/'.$this->detStatus($results['status'][$i]).'" border="0"/></td>';
       echo '<td align="right">' . $this->detDate($results['start-time'][$i]) . '</td>';
-      echo '<td align="center"><a href="' . $results['local-url'][$i] . '"><img src="http://'.$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'].'/bassa/images/Play Green Button.png" border="0"/></a></td>';
+      echo '<td align="center"><a href="' . $results['local-url'][$i] . '"><img src="http://'.$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'].'/bassa/images/download_now.png" border="0"/></a></td>';
       echo "</tr>";
     }
     if ($results['total'] == $results['object-limit'])
@@ -91,7 +91,7 @@ class Cache {
       echo "<td>".$this->calSize($results['content-length'][$i])."</td>";
       echo '<td><img src="http://'.$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'].'/bassa/images/'.$this->detStatus($results['status'][$i]).'" border="0"/></td>';
       echo '<td align="right">' . $this->detDate($results['start-time'][$i]) . '</td>';
-      echo '<td align="center"><a href="' . $results['local-url'][$i] . '"><img src="http://'.$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'].'/bassa/images/Play Green Button.png" border="0"/></a></td>';
+      echo '<td align="center"><a href="' . $results['local-url'][$i] . '"><img src="http://'.$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'].'/bassa/images/download_now.png" border="0"/></a></td>';
       echo "</tr>";
     }
   }
@@ -133,9 +133,11 @@ class Cache {
   function detStatus($status) {
     $image;
     if ($status == 'C')
-      $image = 'Play.png';
+      $image = 'ok.png';
+    else if($status == 'F')
+      $image='dialog_error.png';
     else
-      $image='Remove.png';
+      $image='sleep.png';
     return $image;
   }
   
