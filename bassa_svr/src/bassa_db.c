@@ -438,8 +438,8 @@ bassa_object_set *bassa_list_all(bassa_db *dbd, int offset, int sort_type)
       bobj->object_path = dbi_result_get_string_copy (dbres, "object_path");
       bobj->uuid = dbi_result_get_string_copy (dbres, "client_uuid");
       bobj->file_name = dbi_result_get_string_copy (dbres, "file_name");
-      bobj->start_time = dbi_result_get_datetime (dbres, "start_time");
-      bobj->end_time = dbi_result_get_datetime (dbres, "end_time");
+      bobj->start_time = dbi_result_get_ulonglong (dbres, "start_time");
+      bobj->end_time = dbi_result_get_ulonglong (dbres, "end_time");
       bobj->hits = dbi_result_get_ulonglong (dbres, "hits");
       bobjs->bobj[count] = bobj;
       count++;
@@ -490,8 +490,8 @@ bassa_object_set *bassa_search_file(bassa_db *dbd, char *file_name,
       bobj->object_path = dbi_result_get_string_copy (dbres, "object_path");
       bobj->file_name = dbi_result_get_string_copy (dbres, "file_name");
       bobj->uuid = dbi_result_get_string_copy (dbres, "client_uuid");
-      bobj->start_time = dbi_result_get_datetime (dbres, "start_time");
-      bobj->end_time = dbi_result_get_datetime (dbres, "end_time");
+      bobj->start_time = dbi_result_get_ulonglong (dbres, "start_time");
+      bobj->end_time = dbi_result_get_ulonglong (dbres, "end_time");
       bobj->hits = dbi_result_get_ulonglong (dbres, "hits");
       bobjs->bobj[count] = bobj;
       count++;
@@ -532,8 +532,8 @@ bassa_object_set *bassa_list_latest(bassa_db *dbd, int offset)
       bobj->object_path = dbi_result_get_string_copy (dbres, "object_path");
       bobj->file_name = dbi_result_get_string_copy (dbres, "file_name");
       bobj->uuid = dbi_result_get_string_copy (dbres, "client_uuid");
-      bobj->start_time = dbi_result_get_datetime (dbres, "start_time");
-      bobj->end_time = dbi_result_get_datetime (dbres, "end_time");
+      bobj->start_time = dbi_result_get_ulonglong (dbres, "start_time");
+      bobj->end_time = dbi_result_get_ulonglong (dbres, "end_time");
       bobj->hits = dbi_result_get_ulonglong (dbres, "hits");
       bobjs->bobj[count] = bobj;
       count++;
@@ -610,8 +610,8 @@ bassa_object_set *bassa_list_byuuid(bassa_db *dbd, char *uuid, int offset, int s
       bobj->object_path = dbi_result_get_string_copy (dbres, "object_path");
       bobj->file_name = dbi_result_get_string_copy (dbres, "file_name");
       bobj->uuid = dbi_result_get_string_copy (dbres, "client_uuid");
-      bobj->start_time = dbi_result_get_datetime (dbres, "start_time");
-      bobj->end_time = dbi_result_get_datetime (dbres, "end_time");
+      bobj->start_time = dbi_result_get_ulonglong (dbres, "start_time");
+      bobj->end_time = dbi_result_get_ulonglong (dbres, "end_time");
       bobj->hits = dbi_result_get_ulonglong (dbres, "hits");
       bobjs->bobj[count] = bobj;
       count++;

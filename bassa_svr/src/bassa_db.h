@@ -21,7 +21,7 @@
 #define DB_CREATION_ERROR -2
 #define BAD_DBD -3
 
-#define RESULT_SET_SIZE 5
+#define RESULT_SET_SIZE 15
 
 #define PROCESSING "P"
 #define PENDING "Q"
