@@ -237,7 +237,14 @@ int bassa_db_queue(bassa_db *dbd, bassa_irequest *irq)
       irq->bobj->object_path, irq->bobj->status, 
       irq->bobj->content_length, 0, 0, irq->bobj->uuid);
   if(!dbres)
-    return -1;
+  {
+    sql_query = "UPDATE cache_index SET status='Q' WHERE origin_url='%s' AND status='F'";
+    dbres = dbi_conn_queryf(dbd->conn, sql_query, irq->buri->uri);
+    if (!dbres)
+      return -1;
+    else
+      dbi_result_free(dbres);
+  }
   else
     dbi_result_free(dbres);
   return SUCCESS;
