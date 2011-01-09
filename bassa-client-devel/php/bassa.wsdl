@@ -47,28 +47,28 @@
      <element name="uuid" type="xsd:string" minOccurs="0" maxOccurs="1" nillable="true"/>
    </sequence>
   </complexType>
-  <complexType name="Array10Oftime">
+  <complexType name="Array100Oftime">
    <complexContent>
     <restriction base="SOAP-ENC:Array">
      <attribute ref="SOAP-ENC:arrayType" WSDL:arrayType="xsd:dateTime[]"/>
     </restriction>
    </complexContent>
   </complexType>
-  <complexType name="Array10OfunsignedLong">
+  <complexType name="Array100OfunsignedLONG64">
    <complexContent>
     <restriction base="SOAP-ENC:Array">
      <attribute ref="SOAP-ENC:arrayType" WSDL:arrayType="xsd:unsignedLong[]"/>
     </restriction>
    </complexContent>
   </complexType>
-  <complexType name="Array10Ofint">
+  <complexType name="Array100Ofint">
    <complexContent>
     <restriction base="SOAP-ENC:Array">
      <attribute ref="SOAP-ENC:arrayType" WSDL:arrayType="xsd:int[]"/>
     </restriction>
    </complexContent>
   </complexType>
-  <complexType name="Array10Ofstring">
+  <complexType name="Array100Ofstring">
    <complexContent>
     <restriction base="SOAP-ENC:Array">
      <attribute ref="SOAP-ENC:arrayType" WSDL:arrayType="xsd:string[]"/>
@@ -100,16 +100,16 @@
  <part name="total" type="xsd:unsignedInt"/>
  <part name="object-limit" type="xsd:unsignedInt"/>
  <part name="svr-msg" type="xsd:string"/>
- <part name="file" type="bassa:Array10Ofstring"/>
- <part name="url" type="bassa:Array10Ofstring"/>
- <part name="status" type="bassa:Array10Ofstring"/>
- <part name="hits" type="bassa:Array10Ofint"/>
- <part name="local-url" type="bassa:Array10Ofstring"/>
- <part name="content-length" type="bassa:Array10OfunsignedLong"/>
- <part name="start-time" type="bassa:Array10Oftime"/>
- <part name="end-time" type="bassa:Array10Oftime"/>
- <part name="uuid" type="bassa:Array10Ofstring"/>
- <part name="bassa-id" type="bassa:Array10Ofstring"/>
+ <part name="file" type="bassa:Array100Ofstring"/>
+ <part name="url" type="bassa:Array100Ofstring"/>
+ <part name="status" type="bassa:Array100Ofstring"/>
+ <part name="hits" type="bassa:Array100Ofint"/>
+ <part name="local-url" type="bassa:Array100Ofstring"/>
+ <part name="content-length" type="bassa:Array100OfunsignedLONG64"/>
+ <part name="start-time" type="bassa:Array100Oftime"/>
+ <part name="end-time" type="bassa:Array100Oftime"/>
+ <part name="uuid" type="bassa:Array100Ofstring"/>
+ <part name="bassa-id" type="bassa:Array100Ofstring"/>
 </message>
 
 <message name="list-all">
