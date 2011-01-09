@@ -13,6 +13,7 @@
 #define AUTH_OK 100
 #define AUTH_FAIL 200
 
+
 struct bassa__authRequest
 {
   char *uid;	//User name
@@ -43,16 +44,16 @@ struct bassa__file_set
   unsigned int total;
   unsigned int object_limit;
   char *svr_msg;
-  char *file[10];
-  char *url[10];
-  char *status[10];
-  int hits[10];
-  char *local_url[10];
-  unsigned long int content_length[10];
-  time_t start_time[10];
-  time_t end_time[10];
-  char *uuid[10];
-  char *bassa_id[10];
+  char *file[100];
+  char *url[100];
+  char *status[100];
+  int hits[100];
+  char *local_url[100];
+  unsigned long int content_length[100];
+  time_t start_time[100];
+  time_t end_time[100];
+  char *uuid[100];
+  char *bassa_id[100];
 };
 
 /**

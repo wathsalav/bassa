@@ -64,7 +64,8 @@ SELECT:if ((rt=select(t->fifo_fd+1, &readfs, NULL, NULL, NULL)) < 0)
     if (errno != EINTR)
     {
       perror("Select");
-      return rt;
+      //return rt;
+      goto SELECT;
     }
     else
     {

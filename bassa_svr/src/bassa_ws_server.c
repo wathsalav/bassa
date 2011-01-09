@@ -47,7 +47,7 @@ void* bassa_ws_start(void *arg)
 } 
 
 void *bassa_ws_exec(void *soap) 
-{ 
+{
   soap_serve((struct soap*)soap); 
   soap_destroy((struct soap*)soap); // dealloc C++ data 
   soap_end((struct soap*)soap);     // dealloc data and clean up 
