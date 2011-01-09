@@ -207,4 +207,6 @@ class FrontCache {
 }
 
 $front = new FrontCache();
+
 ?>
+

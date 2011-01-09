@@ -32,6 +32,7 @@
         </script>
     </head>
     <body>
+        <?php $_SESSION["url_bassa"]=$_GET["url"];?>
         <div id="wrapper">
             <div id="header">
                 <table>
@@ -59,7 +60,5 @@
         <div id="footer" align="center">
             <?php include 'include/footer_home.php'; ?>
         </div>
-        <?php $_SESSION["url_bassa"]=$_POST["url"];
-        ?>
     </body>
 </html>

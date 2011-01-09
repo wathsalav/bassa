@@ -1,6 +1,7 @@
 <?php
 require_once 'class.FrontCache.php';
 require_once 'class.Functions.php';
+require_once 'class.Cache.php';
 ?>
 <div id="home_top">
     <div id="tabs">
@@ -20,13 +21,13 @@ require_once 'class.Functions.php';
                 </thead>
                 <tfoot>
                     <tr>
-                        <td colspan="4">Go Most Popular to see all downloads</td>
+                        <td colspan="4">Go to Most Popular to see all downloads</td>
                     </tr>
                 </tfoot>
                 <tbody>
                     <?php
-                    $select_MP_downloads = $front->selectMostPopular(7);
-                    $functions->printHomeDownloads($select_MP_downloads);
+                    /*$select_MP_downloads = $front->selectMostPopular(7);
+                    $functions->printHomeDownloads($select_MP_downloads);*/
                     ?>
                 </tbody>
             </table>           
@@ -43,13 +44,12 @@ require_once 'class.Functions.php';
                 </thead>
                 <tfoot>
                     <tr>
-                        <td colspan="4">Go Latest Downloads to see all downloads</td>
+                        <td colspan="4">Go to Latest Downloads to see all downloads</td>
                     </tr>
                 </tfoot>
                 <tbody>
                     <?php
-                    $select_L_downloads = $front->selectLatest(7);
-                    $functions->printHomeDownloads($select_L_downloads);
+		      $cache->printAllDownloads($_GET['offset'], "#tabs-2");
                     ?>
                 </tbody>
             </table>          

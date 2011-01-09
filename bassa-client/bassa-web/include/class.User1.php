@@ -119,17 +119,36 @@ class User1 {
         
         $url = $_POST['url'];
         $category = $_POST['category'];
-        $user_id = $front->getUserId();     
-       
+	$user_id = $front->getUserId();     
 	$file_name = basename($url);
 	$file_name_with_shash = '/';
 	$file_name_with_shash .= $file_name;
-	
-        $front->addFrontCache($file_name_with_shash, $category, $user_id);
-        $cache->addCache($url, $user_id);
-        $functions->showMessage('complete', "Download Add To Queue.");
 
-       
+	$res = $cache->queueStatus($_POST['url']);
+        if ($res == NULL)
+        { 
+	  $front->addFrontCache($file_name_with_shash, $category, $user_id);
+	  $cache->addCache($url, $user_id);
+	  $functions->showMessage('complete', "Download Added to Queue.");
+        }
+        else if($res['status'][0] == 'P' || $res['status'][0]=='Q')
+        {
+	  $front->addFrontCache($file_name_with_shash, $category, $user_id);
+	  $functions->showMessage('complete', "Download Already in Queue. Content Will be Available Soon!");
+        }
+        else if($res['status'][0] == 'F')       
+        {
+	  $front->addFrontCache($file_name_with_shash, $category, $user_id);
+	  $cache->addCache($url, $user_id);
+	  $functions->showMessage('error', "Previous Attempt on Downloading this File had Failed. Retrying...");
+        }
+        else
+        {
+	  $functions->showMessage('complete', '<b><a href="'.$res['local-url'][0].'">Download Now</a></b>');
+          echo '<script type="text/javascript">';
+          echo 'window.location = "'.$res['local-url'][0].'"';
+          echo '</script>';
+        }
     }    
 
 }

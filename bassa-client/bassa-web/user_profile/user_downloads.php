@@ -1,4 +1,7 @@
-<?php require_once '../include/class.Functions.php'; ?>
+<?php 
+	require_once '../include/class.Functions.php'; 
+	require_once '../php/bassalib.php'; 
+?>
 
 <table id="gradient-style">
     <thead>
@@ -18,6 +21,8 @@
         </tr>
     </tfoot>
     <tbody>
-        <?php $functions->print_User_Downloads(); ?>
+        <?php 
+                $cache->printUserDownloads($_GET['offset']); 
+	?>
     </tbody>
 </table>

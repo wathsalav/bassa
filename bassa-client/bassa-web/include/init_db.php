@@ -22,7 +22,7 @@
 		   timestamp int(11) unsigned NOT NULL,
 		   PRIMARY KEY (username))";
     mysql_query($bndu_query, $mconn);
-    $ci_qry = "CREATE TABLE IF NOT EXISTS cache_index (
+    /*$ci_qry = "CREATE TABLE IF NOT EXISTS cache_index (
 	       id bigint(20) NOT NULL AUTO_INCREMENT,
 	       origin_url varchar(1000) NOT NULL,
 	       file_name varchar(512) DEFAULT NULL,
@@ -38,7 +38,7 @@
 	       end_time bigint(20) NOT NULL,
 	       PRIMARY KEY (id),
 	       UNIQUE KEY origin_url (origin_url))";
-    mysql_query($ci_qry, $mconn);
+    mysql_query($ci_qry, $mconn);*/
     $fc_qry = "CREATE TABLE IF NOT EXISTS faculty (
 	       faculty_id int(11) NOT NULL AUTO_INCREMENT,
 	       faculty_name varchar(100) NOT NULL,

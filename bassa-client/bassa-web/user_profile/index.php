@@ -1,6 +1,13 @@
 <?php
 require("../include/class.Session.php");
-
+require("../include/class.Cache.php");
+if (!is_null($_POST["url"]))
+{
+  $result = $cache->queueStatus($_POST['url']);
+  if ($result['status'][0] == 'C')
+    header('Location: '.$result['local-url'][0]);
+  $_SESSION["url_bassa"]=$_POST["url"];
+}
 if ($session->isAdmin() || $session->logged_in){
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -59,6 +66,6 @@ if ($session->isAdmin() || $session->logged_in){
 </html>
 <?php
 }  else {
-    echo 'You have not privlage to see this page. Please Loging';
+header('Location: ../index.php?url='.$_SESSION["url_bassa"]);
 }
 ?>

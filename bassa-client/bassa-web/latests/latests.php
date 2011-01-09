@@ -1,4 +1,7 @@
-<?php require_once  '../include/class.Functions.php'; ?>
+<?php 
+	require_once  '../include/class.Functions.php'; 
+        require_once  '../include/class.Cache.php';
+?>
 
 <table id="gradient-style">
     <thead>
@@ -17,6 +20,8 @@
         </tr>
     </tfoot>
     <tbody>
-        <?php $functions->print_L_Downloads();?>
+        <?php
+                $cache->printAllDownloads($_GET['offset'], NULL);
+        ?>
     </tbody>
 </table>
