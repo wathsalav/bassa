@@ -32,6 +32,8 @@ class Cache {
 
   function printDownloads($results, $offset, $anchor=NULL)
   {
+    if ($offset == NULL)
+      $offset = 0;
     for ($i=0; $i<$results['total']; $i++)
     {
       echo "<tr>";
