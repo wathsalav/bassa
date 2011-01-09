@@ -82,6 +82,7 @@ class Cache {
 
   function calSize($size) {
     $newSize = $size;
+    $i = -1;
     for ($i=0; $i<4 && $newSize>=1024; $i++)
     {
       $newSize = $newSize/1024;  
@@ -89,16 +90,16 @@ class Cache {
     $newSize = round($newSize*100)/100;
     switch ($i)
     {
-      case 0:
+      case -1:
         $newSize = $newSize."B";
         break;
-      case 1:
+      case 0:
         $newSize = $newSize."KB";
         break;
-      case 2:
+      case 1:
         $newSize = $newSize."MB";
         break;
-      case 3:
+      case 2:
         $newSize = $newSize."GB";
         break;
     }
