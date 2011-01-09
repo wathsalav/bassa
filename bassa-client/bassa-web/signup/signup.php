@@ -3,7 +3,7 @@
 <script type="text/javascript" src="../javascripts/signup.js"></script>
 <form name="signup" action="" method="post">
     <fieldset class="formContainer">
-        <h1>Register! in Bassa.</h1><br/><br/>
+        <h1>Signup for Bassa.</h1><br/><br/>
         <div class="rowContainer">
             <label for="txtFirstname">Username</label>
             <input id="name" type="text"  name="name"/>

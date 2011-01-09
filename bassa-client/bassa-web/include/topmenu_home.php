@@ -6,8 +6,8 @@ if ($session->isAdmin()) {
             <li id="kwick1"><a href=".">Home</a></li>
             <li id="kwick2"><a href="most_popular">Most Popular</a></li>
             <li id="kwick3"><a href="latests">Latest</a></li>
-            <li id="kwick6"><a href="admin">Administrator</a></li>
-            <li id="kwick5"><a href="help">Help</a></li>
+            <li id="kwick6"><a href="help">Help</a></li>
+            <li id="kwick5"><a href="admin">Administrator</a></li>
         </ul>
     </div>
 <?php
