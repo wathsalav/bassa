@@ -40,7 +40,7 @@ typedef struct
 
 typedef struct
 {
-  unsigned long int content_length;
+  unsigned long long int content_length;
   char *origin_url;
   char *status;
   char *object_url;

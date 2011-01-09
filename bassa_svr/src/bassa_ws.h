@@ -49,7 +49,7 @@ struct bassa__file_set
   char *status[100];
   int hits[100];
   char *local_url[100];
-  unsigned long int content_length[100];
+  unsigned long long int content_length[100];
   time_t start_time[100];
   time_t end_time[100];
   char *uuid[100];
