@@ -118,6 +118,8 @@ class Cache {
   }
   
   function detDate($date_time) {
+    if ($date_time == '1970-01-01T00:00:00Z')
+      return "Download in Queue";
     $dateTime = split(' ', $date_time);
     $date;
     if ($dateTime[0] == date("Y-m-d"))
