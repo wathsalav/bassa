@@ -15,13 +15,13 @@ class Cache {
   }
 
   function printAllDownloads($offset, $anchor) {
-    $results = getAllDownloads($offset, 0);
+    $results = getAllDownloads($offset, 1);
     $this->printDownloads($results, $offset, $anchor);
   }
   
   function printUserDownloads($offset) {
     $front = new FrontCache();
-    $results = getUserDownloads($front->getUserId(), $offset, 0);
+    $results = getUserDownloads($front->getUserId(), $offset, 1);
     $this->printDownloads($results, $offset);
   }
 
