@@ -11,7 +11,7 @@
 #include <bassa_db.h>
 #include <noc_filter_concur.h>
 
-bassa_object* bassa_object_new(unsigned long int content_len)
+bassa_object* bassa_object_new(unsigned long long int content_len)
 {
   bassa_object *bobj = (bassa_object*)malloc(sizeof(bassa_object));
   bobj->content_length = content_len;
@@ -27,7 +27,7 @@ bassa_object* bassa_object_new(unsigned long int content_len)
 }
 
 bassa_irequest* bassa_irequest_new1(bassa_uri *uri, 
-				    unsigned long int content_len)
+				    unsigned long long int content_len)
 {
   if (!uri)
     return NULL;
@@ -231,7 +231,7 @@ int bassa_db_queue(bassa_db *dbd, bassa_irequest *irq)
     return -1;
   char *sql_query = NULL;
   dbi_result *dbres = NULL;
-  sql_query = "INSERT INTO cache_index(origin_url, file_name, object_url, object_path, status, content_length, hits, proto_bf, client_uuid) VALUES('%s', '%s', '%s', '%s','%s', %lu, %i, %i, '%s')"; 
+  sql_query = "INSERT INTO cache_index(origin_url, file_name, object_url, object_path, status, content_length, hits, proto_bf, client_uuid) VALUES('%s', '%s', '%s', '%s','%s', %llu, %i, %i, '%s')"; 
   dbres = dbi_conn_queryf(dbd->conn, sql_query, irq->buri->uri, 
       irq->buri->file_name, irq->bobj->object_url, 
       irq->bobj->object_path, irq->bobj->status, 
@@ -260,7 +260,7 @@ int bassa_db_update_cache(bassa_db *dbd, bassa_irequest *irq)
     return -1;
   char *sql_query = NULL;
   dbi_result *dbres = NULL;
-  sql_query = "UPDATE cache_index SET object_url='%s', object_path='%s', status='%s', content_length=%lu, proto_bf=%i, start_time=%lu, end_time=%lu WHERE origin_url='%s'";
+  sql_query = "UPDATE cache_index SET object_url='%s', object_path='%s', status='%s', content_length=%llu, proto_bf=%i, start_time=%lu, end_time=%lu WHERE origin_url='%s'";
   dbres = dbi_conn_queryf(dbd->conn, sql_query, irq->bobj->object_url, 
 			  irq->bobj->object_path, irq->bobj->status, 
 			  irq->bobj->content_length, irq->bobj->proto_bf,
@@ -405,6 +405,8 @@ bassa_object_set *bassa_list_all(bassa_db *dbd, int offset, int sort_type)
     return NULL;
   if (sort_type != 0)
     sort_type = 1;
+  if (offset < 0)
+    offset = 0;
   char *sql_query = NULL;
   dbi_result *dbres = NULL;
   char *st = NULL;
@@ -453,6 +455,8 @@ bassa_object_set *bassa_search_file(bassa_db *dbd, char *file_name,
 {
   if (!dbd)
     return NULL;
+  if (offset < 0)
+    offset = 0;
   if (!file_name)
     return NULL;
   if (sort_type != 0)
@@ -504,6 +508,8 @@ bassa_object_set *bassa_list_latest(bassa_db *dbd, int offset)
 {
   if (!dbd)
     return NULL;
+  if (offset < 0)
+    offset = 0;
   char *sql_query = NULL;
   dbi_result *dbres = NULL;
   sql_query = "SELECT * FROM cache_index ORDER BY start_time DESC LIMIT %i OFFSET %i";
@@ -573,6 +579,8 @@ bassa_object_set *bassa_list_byuuid(bassa_db *dbd, char *uuid, int offset, int s
 {
   if (!dbd)
     return NULL;
+  if (offset < 0)
+    offset = 0;
   if (!uuid)
     return NULL;
   if (sort_type != 0)

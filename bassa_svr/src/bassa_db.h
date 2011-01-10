@@ -68,10 +68,10 @@ typedef struct
   unsigned int offset;
 }bassa_object_set;
 
-bassa_object* bassa_object_new(unsigned long int content_len);
+bassa_object* bassa_object_new(unsigned long long int content_len);
 
 bassa_irequest* bassa_irequest_new1(bassa_uri *uri, 
-                                   unsigned long int content_len);
+                                   unsigned long long int content_len);
                                    
 bassa_irequest* bassa_irequest_new2(bassa_object *bobj);
 
