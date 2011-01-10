@@ -37,7 +37,8 @@ class Cache {
     for ($i=0; $i<$results['total']; $i++)
     {
       echo "<tr>";
-      echo '<td><img src="http://'.$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'].'/bassa/images/category/'. $tagImage. '" border="0"/></td>';
+      echo "<td></td>";
+      //echo '<td><img src="http://'.$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'].'/bassa/images/category/'. $tagImage. '" border="0"/></td>';
       echo "<td>".$results['file'][$i]."</td>";
       echo "<td>".$this->calSize($results['content-length'][$i])."</td>";
       echo '<td><img src="http://'.$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'].'/bassa/images/'.$this->detStatus($results['status'][$i]).'" border="0"/></td>';
