@@ -27,7 +27,7 @@ class Cache {
 
   function printSearchResults($key_word, $offset) {
     $results = search($key_word, $offset);
-    $this->printDownloads($results, $offseti, '&search_item='.$key_word);
+    $this->printDownloads($results, $offset, '&search_item='.$key_word);
   }
 
   function printDownloads($results, $offset, $anchor=NULL)
