@@ -182,7 +182,7 @@ bassa_stop_tag_handler(void *udata, char *name)
       conf->cfgcol->modconf_list = bassa_list_add (conf->cfgcol->modconf_list, 
 						     (void*)conf->cfgcol->out_list);
       conf->cfgcol->out_list = NULL;
-      /*bassa_list *l = conf->cfgcol->modconf_list;
+      bassa_list *l = conf->cfgcol->modconf_list;
       while (l)
         {
           printf (">Name: %s\n", ((bassa_module_conf*)(l->list_data))->name);
@@ -194,7 +194,7 @@ bassa_stop_tag_handler(void *udata, char *name)
             printf (">Len : %i\n", strlen(((bassa_module_conf*)(l->list_data))->modconf));
           printf ("\n\n");
           l = l->next;
-        }*/
+        }
     }
   conf->current_tag = -1;
 }

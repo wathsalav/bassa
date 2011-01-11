@@ -1,4 +1,4 @@
-#SUBDIRS = modules
+SUBDIRS = modules
 INCLUDES = -Isrc -I/usr/include/libxml2
 bin_PROGRAMS=bassa bassa_client
 
