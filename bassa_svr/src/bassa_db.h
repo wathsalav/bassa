@@ -105,6 +105,8 @@ bassa_object_set *bassa_list_all(bassa_db *dbd, int offset, int sort_type);
 
 bassa_object_set *bassa_list_latest(bassa_db *dbd, int offset);
 
+bassa_object_set *bassa_list_popular(bassa_db *dbd, int offset);
+
 bassa_object_set *bassa_search_file(bassa_db *dbd, char *file_name, int offset, int sort_type);
 
 char *bassa_db_get_file_status(bassa_db *dbd, int id);

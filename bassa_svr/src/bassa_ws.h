@@ -91,5 +91,16 @@ int bassa__get_status(int id, char **response);
  */
 int bassa__list_byuuid(int offset, int sort_type, char *uuid, struct bassa__file_set *r);
 
+/**
+ * Update hits for the url
+ */
+int bassa__update_hits(struct bassa__request *r, char **response);
+
+
+/**
+ * Get popular cache objects
+ */
+int bassa__popular_downloads(int offset, struct bassa__file_set *r);
+
 #endif //BASSA_WS_H
 
