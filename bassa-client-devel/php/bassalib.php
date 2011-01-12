@@ -34,7 +34,7 @@ function getBassaService(){
 	$p="8095";
 	
 	if($service==null){
-		$service = new SoapClient("/home/bassa/bassa/trunk/bassa-client-devel/php/bassa.wsdl",array(
+		$service = new SoapClient($_SERVER['DOCUMENT_ROOT']."/bassa/php/bassa.wsdl",array(
 		"soap_version"   => SOAP_1_2,
 		"trace"      => 1,
 		"exceptions" => 1,
@@ -83,7 +83,7 @@ function add($url,$cLength,$authToken,$uid){
 	try{
 		$result = $service->__soapCall("enqueue", array($request));
 	}catch(SoapFault $e){
-		print($e->faultstring);
+                print($e->faultstring);
 		return false;
 	}
 	//bassaDebug();
@@ -163,8 +163,54 @@ function getStatus($id){
 		print($e->faultstring);
 		return false;
 	}
-	bassaDebug();
+	//bassaDebug();
 	return $result;
+}
+
+/** Update hits for the url
+ * 
+ * @param string $url
+ */
+
+function bassaUpdateHits($url){
+	global $service;
+
+	$request = new request();
+	$request->url = $url;
+
+	$service = getBassaService();
+	try{
+		$result = $service->__soapCall("update-hits", array($request));
+	}catch(SoapFault $e){
+		print($e->faultstring);
+		return false;
+	}
+        if ($result)
+          return false;
+        else
+          return true;
+	//bassaDebug();
+	//printBassaUsage();
+	//var_dump ($result);
+}
+
+/**
+ * List the most popular downloads
+ * 
+ * @param int $number
+ */
+function getPopularDownloads($number=0){
+	global $service;
+	$service= getBassaService();
+	try{
+		$results = $service->__soapCall("popular-downloads", array($number));
+	}catch(SoapFault $e){
+		print($e->faultstring);
+		return false;
+	}
+	//bassaDebug();
+	if($results['total'] == 0) return false;
+	else return $results;
 }
 
 /**

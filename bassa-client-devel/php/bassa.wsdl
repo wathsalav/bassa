@@ -143,6 +143,18 @@
  <part name="uuid" type="xsd:string"/>
 </message>
 
+<message name="update-hitsRequest">
+ <part name="r" type="bassa:request"/>
+</message>
+
+<message name="update-hitsResponse">
+ <part name="response" type="xsd:string"/>
+</message>
+
+<message name="popular-downloads">
+ <part name="offset" type="xsd:int"/>
+</message>
+
 <portType name="bassaPortType">
  <operation name="enqueue">
   <documentation>Service definition of function bassa__enqueue</documentation>
@@ -177,6 +189,16 @@
  <operation name="list-byuuid">
   <documentation>Service definition of function bassa__list_byuuid</documentation>
   <input message="tns:list-byuuid"/>
+  <output message="tns:file-set"/>
+ </operation>
+ <operation name="update-hits">
+  <documentation>Service definition of function bassa__update_hits</documentation>
+  <input message="tns:update-hitsRequest"/>
+  <output message="tns:update-hitsResponse"/>
+ </operation>
+ <operation name="popular-downloads">
+  <documentation>Service definition of function bassa__popular_downloads</documentation>
+  <input message="tns:popular-downloads"/>
   <output message="tns:file-set"/>
  </operation>
 </portType>
@@ -238,6 +260,24 @@
   </output>
  </operation>
  <operation name="list-byuuid">
+  <SOAP:operation style="rpc"/>
+  <input>
+     <SOAP:body use="encoded" namespace="urn:bassa" encodingStyle="http://www.w3.org/2003/05/soap-encoding"/>
+  </input>
+  <output>
+     <SOAP:body use="encoded" namespace="urn:bassa" encodingStyle="http://www.w3.org/2003/05/soap-encoding"/>
+  </output>
+ </operation>
+ <operation name="update-hits">
+  <SOAP:operation style="rpc"/>
+  <input>
+     <SOAP:body use="encoded" namespace="urn:bassa" encodingStyle="http://www.w3.org/2003/05/soap-encoding"/>
+  </input>
+  <output>
+     <SOAP:body use="encoded" namespace="urn:bassa" encodingStyle="http://www.w3.org/2003/05/soap-encoding"/>
+  </output>
+ </operation>
+ <operation name="popular-downloads">
   <SOAP:operation style="rpc"/>
   <input>
      <SOAP:body use="encoded" namespace="urn:bassa" encodingStyle="http://www.w3.org/2003/05/soap-encoding"/>
