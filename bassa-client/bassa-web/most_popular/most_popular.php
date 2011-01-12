@@ -1,4 +1,4 @@
-<?php require_once '../include/class.Functions.php'; ?>
+<?php require_once '../include/class.Cache.php'; ?>
 
 <table id="gradient-style">
     <thead>
@@ -17,6 +17,6 @@
         </tr>
     </tfoot>
     <tbody>
-        <!--<?php $functions->print_MP_Downloads(); ?>-->
+        <?php $cache->printPopularDownloads(0); ?>
     </tbody>
 </table>

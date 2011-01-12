@@ -1,6 +1,6 @@
 <?php
 require("../include/class.Cache.php");
-//require("../include/class.Session.php");
+require("../include/class.Session.php");
 if (!is_null($_POST["url"]))
 {
   $result = $cache->queueStatus($_POST['url']);

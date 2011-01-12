@@ -26,8 +26,7 @@ require_once 'class.Cache.php';
                 </tfoot>
                 <tbody>
                     <?php
-                    /*$select_MP_downloads = $front->selectMostPopular(7);
-                    $functions->printHomeDownloads($select_MP_downloads);*/
+                         $cache->printPopularDownloads(0);
                     ?>
                 </tbody>
             </table>           

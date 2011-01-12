@@ -29,8 +29,18 @@ class Cache {
     $results = search($key_word, $offset);
     $this->printDownloads($results, $offset, '&search_item='.$key_word);
   }
+  
+  function updateHits($url) {
+    $results = bassaUpdateHits($url);
+    return $results;
+  }
 
-  function printDownloads($results, $offset, $anchor=NULL)
+  function printPopularDownloads($offset) {
+    $results = getPopularDownloads($offset);
+    $this->printDownloads($results, $offset);
+  }
+  
+function printDownloads($results, $offset, $anchor=NULL)
   {
     if ($offset == NULL)
       $offset = 0;

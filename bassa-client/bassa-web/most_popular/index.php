@@ -37,6 +37,7 @@ require("../include/class.Session.php");
                 </table>
             </div>
             <div><?php include("../include/topmenu.php"); ?></div>
+            <h3>Most Popular Downloads</h3>
             <div id="content" align="center">
                 <?php include 'most_popular.php'; ?>
             </div>
