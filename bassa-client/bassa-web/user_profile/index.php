@@ -1,11 +1,11 @@
 <?php
-require("../include/class.Session.php");
 require("../include/class.Cache.php");
+//require("../include/class.Session.php");
 if (!is_null($_POST["url"]))
 {
   $result = $cache->queueStatus($_POST['url']);
   if ($result['status'][0] == 'C')
-    header('Location: '.$result['local-url'][0]);
+    header('Location: /bassa/getfile.php?object_url='.$result['local-url'][0].'&origin_url='.$result['url'][0]);
   $_SESSION["url_bassa"]=$_POST["url"];
 }
 if ($session->isAdmin() || $session->logged_in){

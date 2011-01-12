@@ -43,7 +43,7 @@ class Cache {
       echo "<td>".$this->calSize($results['content-length'][$i])."</td>";
       echo '<td><img src="http://'.$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'].'/bassa/images/'.$this->detStatus($results['status'][$i]).'" border="0"/></td>';
       echo '<td align="right">' . $this->detDate($results['start-time'][$i]) . '</td>';
-      echo '<td align="center"><a href="' . $results['local-url'][$i] . '"><img src="http://'.$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'].'/bassa/images/download_now.png" border="0"/></a></td>';
+      echo '<td align="center"><a href="/bassa/getfile.php?object_url='.$results['local-url'][$i].'&origin_url='.$results['url'][$i].'"><img src="http://'.$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'].'/bassa/images/download_now.png" border="0"/></a></td>';
       echo "</tr>";
     }
     if ($results['total'] == $results['object-limit'])
