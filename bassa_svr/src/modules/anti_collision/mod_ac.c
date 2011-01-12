@@ -3,7 +3,7 @@
  *   wvi@ucsc.cmb.ac.lk   *
  ***************************************************************************/
 
-#include <bassa_prp_context.h>
+#include <bassa_db.h>
 #include <bassa_module_manager.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,22 +15,40 @@ bassa_exec_point module_execpoint = PRP_QUEUE;
 int module_exec (void *ctx);
 void module_close (void *ctx);
 
-extern char* bassa_file_get_name (char*);
 extern char* mod_crypt_getsha1 (char*);
 int 
 module_exec (void *ctx)
 {
-  bassa_prp_context *prpc = (bassa_prp_context*)ctx;
-  prpc->renamed = 1;
-  char *fname = bassa_file_get_name (prpc->orig_url);
-  char *sha1 = mod_crypt_getsha1 (prpc->orig_url);
-  int len = strlen (fname) + strlen (sha1) + 2;
+  bassa_object *bobj = (bassa_object*)ctx;
+  if (!bobj)
+    return -1;
+  if (!bobj->origin_url)
+    return -1;
+  char *sha1 = mod_crypt_getsha1 (bobj->origin_url);
+  int len = strlen(conf->repocfg->repo_path) + strlen (sha1) + 2;
   char *hashed_fname = (char*)malloc(len);
   memset (hashed_fname, (int)'\0', len);
-  strcpy (hashed_fname, sha1);
-  strcat (hashed_fname, "_");
-  strcat (hashed_fname, fname);
-  prpc->new_name = hashed_fname;
+  strcpy (hashed_fname, conf->repocfg->repo_path);
+  strcat (hashed_fname, "/");
+  strcat (hashed_fname, sha1);
+  if (bobj->object_path)
+  {
+    free(bobj->object_path);
+    bobj->object_path = NULL;
+  }
+  bobj->object_path = hashed_fname;
+  len = strlen(conf->repocfg->url) + strlen (sha1) + 2;
+  char *hashed_url = (char*)malloc(len);
+  memset (hashed_url, (int)'\0', len);
+  strcpy (hashed_url, conf->repocfg->url);
+  strcat (hashed_url, "/");
+  strcat (hashed_url, sha1);
+  if (bobj->object_url)
+  {
+    free(bobj->object_url);
+    bobj->object_url = NULL;
+  }
+  bobj->object_url = hashed_url;
   return 0;
 }
 

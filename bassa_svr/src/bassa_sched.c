@@ -3,6 +3,9 @@
 #include <bassa_sched.h>
 #include <bassa_trigger.h>
 #include <noc_filter_transaction.h>
+#include <bassa_module_manager.h>
+
+bassa_mutex *bm = NULL;
 
 bassa_sched*
 bassa_sched_new (bassa_conf *conf)
@@ -40,6 +43,7 @@ void
 bassa_sched_start(void* param)
 {
   bassa_sched *bs = (bassa_sched*)param;
+  bm = bassa_mutex_new();
   bs->htpool = bassa_task_pool_new(bs->htproc_count);
   bassa_timer_start(bs->btimer);
   int i = -1;
@@ -140,7 +144,6 @@ bassa_sched_htproc(void *param)
 {
   bassa_disable_cancel(NULL, NULL);
   //MUTEX LOCK
-  bassa_mutex *bm = bassa_mutex_new();
   bassa_mutex_lock(bm);
   if (*htproc_count < htproc_max)
   {
@@ -158,7 +161,6 @@ bassa_sched_htproc(void *param)
   }
   //MUTEX UNLOCK
   bassa_mutex_unlock(bm);
-  bassa_mutex_free(bm);
   bassa_push_cleaner(bassa_task_cleaner, htpool); 
   bassa_push_cleaner(bassa_sched_saveonkill, param); 
   bassa_irequest *birq = (bassa_irequest*)param;

@@ -29,30 +29,30 @@ bassa_module_table_new ()
 			      malloc (sizeof(bassa_exec_table)*N_PRP_EXECPOINTS);
             modtbl->rt[PRP_REGION].execpoint_num = N_PRP_EXECPOINTS;
             modtbl->rt[PRP_REGION].et[0].exec_point = PRP_QUEUE;
-            modtbl->rt[PRP_REGION].et[0].ml = NULL;
+            modtbl->rt[PRP_REGION].et[0].ml = bassa_list_new();
 	    break;
           case POP_REGION:
             modtbl->rt[POP_REGION].et = (bassa_exec_table*)
 			      malloc (sizeof(bassa_exec_table)*N_POP_EXECPOINTS);
             modtbl->rt[POP_REGION].execpoint_num = N_POP_EXECPOINTS;
             modtbl->rt[POP_REGION].et[0].exec_point = POP_STORE;
-            modtbl->rt[POP_REGION].et[0].ml = NULL;
+            modtbl->rt[POP_REGION].et[0].ml = bassa_list_new();
             modtbl->rt[POP_REGION].et[1].exec_point = POP_NOTIFY;
-            modtbl->rt[POP_REGION].et[1].ml = NULL;
+            modtbl->rt[POP_REGION].et[1].ml = bassa_list_new();
 	    break;
           case ACT_REGION:
             modtbl->rt[ACT_REGION].et = (bassa_exec_table*)
 			      malloc (sizeof(bassa_exec_table)*N_ACT_EXECPOINTS);
             modtbl->rt[ACT_REGION].execpoint_num = N_ACT_EXECPOINTS;
             modtbl->rt[ACT_REGION].et[0].exec_point = ACT_X;
-            modtbl->rt[ACT_REGION].et[0].ml = NULL;
+            modtbl->rt[ACT_REGION].et[0].ml = bassa_list_new();
             break;
           case COR_REGION:
             modtbl->rt[COR_REGION].et = (bassa_exec_table*)
 			      malloc (sizeof(bassa_exec_table)*N_COR_EXECPOINTS);
             modtbl->rt[COR_REGION].execpoint_num = N_COR_EXECPOINTS;
             modtbl->rt[COR_REGION].et[0].exec_point = COR_X;
-            modtbl->rt[COR_REGION].et[0].ml = NULL;
+            modtbl->rt[COR_REGION].et[0].ml = bassa_list_new();
         }
     } 
   return modtbl;
@@ -114,7 +114,6 @@ bassa_register_module (bassa_module_table *mod_tbl,
   mc->module_path = mod_path;
   mc->module_name = mod_name;
   mc->module_conf = modconf;
-
   //Open module to see whether it is a bassa module and to know it's region/execution point
   void *mod_hndl = dlopen (mc->module_path, TEST_BINDING);
   if (!mod_hndl)
@@ -220,7 +219,7 @@ bassa_exec_path (void *regcontx, bassa_module_table *modtbl,
       if (modtbl->rt[r_count].et[ep_count].exec_point == ep)
         break;
     }
-  bassa_list *bl = modtbl->rt[r_count].et[ep_count].ml;
+  bassa_list *bl = modtbl->rt[r_count].et[ep_count].ml->next;
   while (bl)
     {
       bassa_module_context *bmc = (bassa_module_context*)(bl->list_data);

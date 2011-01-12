@@ -4,7 +4,7 @@ bin_PROGRAMS=bassa bassa_client
 
 include Makefile.defines
 include Makefile.c_rules
-AM_CFLAGS=-O0
+CFLAGS=-g -O0 -rdynamic
 bassa_SOURCES=noc_filter_file.h noc_filter_file.c\
 		   noc_filter_timer.h noc_filter_timer.c noc_filter_transaction.h noc_filter_transaction.c\
 		   main.c bassa_sec.c\

@@ -36,8 +36,8 @@ typedef enum
   PRP_QUEUE,	//Exec point before enqueueing 
   POP_STORE,	//Exec point at storage
   POP_NOTIFY, 	//Exec point at notifier
-  COR_X,	//One and only one exec point of COR
-  ACT_X		//One and onlly one exec point of ACT	
+  COR_X,	//One and only exec point of COR
+  ACT_X		//One and onlly exec point of ACT	
 } bassa_exec_point;
 
 typedef int (*mod_exec)(void*, char*);

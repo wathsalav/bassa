@@ -67,6 +67,11 @@ void bassa_register_globals (bassa_conf *conf);
 void bassa_sigpipe_handler (int signum);
 
 /**
+ * Handles SIGPIPE 
+ */
+void bassa_sighup_handler (int signum);
+
+/**
  * Check and create database
  */
 void bassa_database_check();
@@ -81,6 +86,7 @@ int
 main (int argc, char *argv[])
 {
   signal (SIGPIPE, bassa_sigpipe_handler);
+  signal (SIGHUP, bassa_sighup_handler);
   struct bassa_optstruct *opts = bassa_getopts (argc, argv);
   conf = bassa_parse_configuration (opts->config_file);
   //Set global values
@@ -95,11 +101,11 @@ main (int argc, char *argv[])
   bassa_database_check();
   //Create and load module table
   bmt = bassa_module_table_new ();
-  bassa_list *modconflist = conf->cfgcol->modconf_list;
+  bassa_list *modconflist = conf->cfgcol->modconf_list->next;
   while (modconflist)
     {
       bassa_module_conf *bmc = modconflist->list_data;
-      bassa_register_module (bmt,bmc->name,
+      int i = bassa_register_module (bmt,bmc->name,
 			     bmc->path, bmc->modconf);
       modconflist = modconflist->next;
     }
@@ -203,6 +209,14 @@ void bassa_database_check()
 }
 
 void bassa_sigpipe_handler (int signum)
+{
+#ifdef DEBUG
+  printf ("Handling SIGPIPE\n");
+#endif //DEUG
+  return;
+}
+
+void bassa_sighup_handler (int signum)
 {
 #ifdef DEBUG
   printf ("Handling SIGPIPE\n");

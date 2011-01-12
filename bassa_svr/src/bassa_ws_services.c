@@ -6,9 +6,12 @@
 #include <bassa_ws_server.h>
 #include <noc_filter_configure.h>
 #include <bassa_module_manager.h>
+#include <bassa_prp_context.h>
 #include <bassa_uri.h>
 #include <bassa_db.h>
 #include <bassa_trigger.h>
+
+extern bassa_module_table *bmt;
 
 int bassa__enqueue(struct soap *soap, struct bassa__request *r, char **response)
 { 
@@ -44,6 +47,8 @@ int bassa__enqueue(struct soap *soap, struct bassa__request *r, char **response)
     *response = "FAIL: Missing UUID";
     goto cleanup;
   }
+  //Execute PRP Modules
+  bassa_exec_path(bir->bobj, bmt, PRP_REGION, PRP_QUEUE);
   int ret = bassa_db_queue(dbd, bir);
   if (ret)
   {

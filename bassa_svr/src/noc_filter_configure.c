@@ -50,7 +50,8 @@ bassa_conf_collection_new()
 {
   bassa_conf_collection* cc =
     (bassa_conf_collection*)malloc(sizeof(bassa_conf_collection));
-  cc->modconf_list = NULL;
+  //cc->modconf_list = NULL;
+  cc->modconf_list = bassa_list_new();
   cc->out_list = NULL;
   return cc;
 }
@@ -182,7 +183,7 @@ bassa_stop_tag_handler(void *udata, char *name)
       conf->cfgcol->modconf_list = bassa_list_add (conf->cfgcol->modconf_list, 
 						     (void*)conf->cfgcol->out_list);
       conf->cfgcol->out_list = NULL;
-      bassa_list *l = conf->cfgcol->modconf_list;
+      bassa_list *l = conf->cfgcol->modconf_list->next;
       while (l)
         {
           printf (">Name: %s\n", ((bassa_module_conf*)(l->list_data))->name);
