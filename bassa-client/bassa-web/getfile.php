@@ -13,13 +13,18 @@ else
 {
   if ($cache->updateHits($origin_url))
   {
-    header("Content-Length: ".$res['content-length'][0]);
-    header("Content-Disposition: attachment; filename=".$res['file'][0].";\r\n");
     $fd = fopen($object_url, 'r');
+    $stream = stream_get_meta_data($fd);
+    foreach ($stream['wrapper_data'] as $hdr)
+    {
+        header($hdr);
+    }
+    header("Content-Disposition: attachment; filename=".$res['file'][0].";\r\n");
     while($line = fgets($fd, 1024))
     {
       echo $line;
     }
+    fclose($fd);
   }
 }
 ?>
