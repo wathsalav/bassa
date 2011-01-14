@@ -260,6 +260,7 @@ int bassa_db_update_cache(bassa_db *dbd, bassa_irequest *irq)
     return -1;
   char *sql_query = NULL;
   dbi_result *dbres = NULL;
+  //char *url = bassa_uri_escape(irq->bobj->origin_url);
   sql_query = "UPDATE cache_index SET object_url='%s', object_path='%s', status='%s', content_length=%llu, proto_bf=%i, start_time=%lu, end_time=%lu WHERE origin_url='%s'";
   dbres = dbi_conn_queryf(dbd->conn, sql_query, irq->bobj->object_url, 
 			  irq->bobj->object_path, irq->bobj->status, 
@@ -312,6 +313,7 @@ bassa_irequest* bassa_db_getpending(bassa_db *dbd)
       dbi_result_free (dbres);
       bassa_irequest* bir = bassa_irequest_new2 (bobj);
       time(&(bobj->start_time));
+      //free(origin_url);
       return bir;
     }
     else
@@ -383,8 +385,10 @@ int bassa_update_status(bassa_db *dbd, char *origin_url, char *status)
     return -1;
   char *sql_query = NULL;
   dbi_result *dbres = NULL;
+  //char *url = bassa_uri_unescape(origin_url);
   sql_query = "UPDATE cache_index SET status='%s' WHERE origin_url='%s'";
   dbres = dbi_conn_queryf(dbd->conn, sql_query, status, origin_url);
+  //free(url);
   if(!dbres)
     return -1;
   else

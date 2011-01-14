@@ -198,9 +198,10 @@ int bassa_transaction_open(bassa_transaction  *transaction)
 void bassa_transaction_set_options (bassa_transaction *transaction,
     int connect_timeout, int status)
 {
+  char *origin_url = bassa_uri_unescape(transaction->birq->bobj->origin_url);
   curl_easy_setopt (transaction->curl_handle, 
       CURLOPT_URL, 
-      transaction->birq->bobj->origin_url);
+      origin_url);
   curl_easy_setopt (transaction->curl_handle, 
       CURLOPT_FOLLOWLOCATION,
       1);
@@ -231,6 +232,7 @@ void bassa_transaction_set_options (bassa_transaction *transaction,
   curl_easy_setopt (transaction->curl_handle,
       CURLOPT_PROXY,
       transaction->http_proxy);
+  free(origin_url);
   switch (status)
   {
     case CURLE_PARTIAL_FILE:
