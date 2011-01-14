@@ -20,7 +20,9 @@ bassa_uri *bassa_uri_new (char *uri)
   bu->fragment = NULL;
   bu->file_name = NULL;
   bu->uri = NULL;
-  bu->uri = bassa_uri_unescape(uri);
+  bu->uri = bassa_uri_escape(uri);
+  if (!bu->uri)
+    bu->uri =strdup(uri);
   xmlURI *pURI = xmlParseURI(bu->uri);
   if (pURI)
   {
@@ -135,3 +137,8 @@ char *bassa_uri_unescape(char *uri)
   return escaped_uri;
 }
 
+char *bassa_uri_escape(char *uri)
+{
+  char *escaped_uri = xmlURIEscapeStr(uri, NULL);
+  return escaped_uri;
+}

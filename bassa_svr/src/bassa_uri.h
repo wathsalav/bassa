@@ -35,9 +35,14 @@ void bassa_uri_free (bassa_uri *bu);
 char *bassa_uri_get_filename(char *path);
 
 /**
- * Escape URI
+ * Unescape URI
  */
 char *bassa_uri_unescape(char *uri);
+
+/**
+ * Escape URI
+ */
+char *bassa_uri_escape(char *uri);
 
 #endif //BASSA_URI
 

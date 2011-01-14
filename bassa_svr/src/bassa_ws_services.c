@@ -80,7 +80,8 @@ int bassa__search(struct soap *soap, int offset, int sort_type, char *url, struc
     r->svr_msg = "FAIL: Internal Server Error";
     return SOAP_OK;
   }
-  bassa_object_set *bobjs = bassa_search_file(dbd, url, offset, sort_type);
+  char *new_url = bassa_uri_escape(url);
+  bassa_object_set *bobjs = bassa_search_file(dbd, new_url, offset, sort_type);
   r->offset = bobjs->offset;
   r->total = bobjs->total;
   r->object_limit = bobjs->object_limit;
@@ -97,6 +98,7 @@ int bassa__search(struct soap *soap, int offset, int sort_type, char *url, struc
     r->start_time[i] = bobjs->bobj[i]->start_time;
     r->end_time[i] = bobjs->bobj[i]->end_time;
   }
+  free(new_url);
   bassa_object_set_free(bobjs);
   bassa_db_shutdown(dbd);
   return SOAP_OK;
