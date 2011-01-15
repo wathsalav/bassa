@@ -16,6 +16,7 @@ typedef struct
   char *fragment;
   char *file_name;
   char *uri;
+  char *uri_unencoded;
 }bassa_uri;
 
 
