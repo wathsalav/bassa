@@ -12,6 +12,7 @@
 #include <bassa_trigger.h>
 
 extern bassa_module_table *bmt;
+extern bassa_trigger *btrig;
 
 int bassa__enqueue(struct soap *soap, struct bassa__request *r, char **response)
 { 
@@ -21,7 +22,6 @@ int bassa__enqueue(struct soap *soap, struct bassa__request *r, char **response)
   bassa_db *dbd = NULL; 
   if (soap == NULL || r == NULL)
     return SOAP_FAULT;
-  btrig = bassa_trigger_new(conf->svrcfg->server_event_bus);
   dbd = bassa_db_init(); 
   if (!dbd)
   {
@@ -62,7 +62,6 @@ int bassa__enqueue(struct soap *soap, struct bassa__request *r, char **response)
 cleanup: bassa_db_shutdown(dbd);
   bassa_irequest_free(bir);
   bassa_uri_free(bu);
-  bassa_trigger_free(btrig);
   return SOAP_OK;
 }
 

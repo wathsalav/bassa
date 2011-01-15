@@ -6,7 +6,7 @@
 #include <noc_filter_concur.h>
 
 void* bassa_ws_start(void *arg) 
-{ 
+{
   //bassa_block_signal (SIGALRM);
   struct soap soap;
   soap_init(&soap); 
@@ -18,7 +18,7 @@ void* bassa_ws_start(void *arg)
                 conf->svrcfg->server_port, 
                 conf->svrcfg->server_backlog); 
   if (!soap_valid_socket(m)) 
-    exit(1); 
+    exit(1);
   fprintf(stderr, "Socket connection successful on port:%d\n", conf->svrcfg->server_port); 
   int i;
   i=0;
@@ -42,7 +42,6 @@ void* bassa_ws_start(void *arg)
   }
   soap_done(&soap); // detach soap struct
   printf ("END OF WS START\n"); 
-  //bassa_unblock_signal (SIGALRM);
   return NULL; 
 } 
 

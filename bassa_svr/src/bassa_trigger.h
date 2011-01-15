@@ -11,7 +11,7 @@
 #define BASSA_INIT_PROC 3
 #define BASSA_ALARM_FIRED 4
 #define BASSA_DB_UPDATED 5
-
+#define BASSA_EVENT_ERROR 6
 typedef int type_t;
 static int refcount = 0;
 
@@ -27,5 +27,6 @@ bassa_trigger* bassa_trigger_new (char *tn);
 void bassa_trigger_free (bassa_trigger *t);
 int bassa_trigger_sleep (bassa_trigger *t);
 int bassa_trigger_wake (bassa_trigger *t, type_t type);
+void bassa_trigger_reinit(bassa_trigger *bt);
 
 #endif //BASSA_TRIG_H

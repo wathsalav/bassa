@@ -64,8 +64,14 @@ SELECT:if ((rt=select(t->fifo_fd+1, &readfs, NULL, NULL, NULL)) < 0)
     if (errno != EINTR)
     {
       perror("Select");
-      //return rt;
-      goto SELECT;
+      if (errno == EBADF)
+      {
+        printf("Fifo FD: %i\n", t->fifo_fd);
+        bassa_trigger_reinit(t);
+        goto SELECT;
+      }
+      else
+        return BASSA_EVENT_ERROR;
     }
     else
     {
@@ -94,5 +100,19 @@ int bassa_trigger_wake (bassa_trigger *t, type_t type)
     perror("FIFO Problem");
   }
   return i;
+}
+
+void bassa_trigger_reinit(bassa_trigger *bt)
+{
+  close(bt->fifo_fd);
+  unlink(bt->fifo_name);
+  int i = mkfifo(bt->fifo_name, 0600);
+  if (!i)
+    bt->fifo_fd = open(bt->fifo_name, O_RDWR, 0);
+  else
+  {
+    printf("Exiting: Irrecoverable Error. Unable to reinitialize event fifo!\n");
+    exit(-1);
+  }
 }
 
