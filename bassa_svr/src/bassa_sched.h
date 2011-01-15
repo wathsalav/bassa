@@ -16,6 +16,14 @@ bassa_trigger *btrig;
 bassa_list *clist, *klist, *blist;
 bassa_task_pool *htpool;
 unsigned int *htproc_count, htproc_max;
+
+typedef struct
+{
+  unsigned int hour;
+  unsigned int min;
+  unsigned int sec;
+}bassa_time_object;
+
 typedef struct
 {
   unsigned int list_len;
@@ -33,6 +41,8 @@ typedef struct
   int sched_sleep;
   bassa_timer *btimer;
   bassa_db *dbd;
+  bassa_time_object start_bto;
+  bassa_time_object stop_bto;
 }bassa_sched;
 
 bassa_sched*

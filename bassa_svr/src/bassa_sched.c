@@ -23,6 +23,10 @@ bassa_sched_new (bassa_conf *conf)
   bs->htproc_max = conf->dlcfg->max_children;
   bs->list_max = conf->dlcfg->max_children;
   bs->htproc_count = 0;
+  bassa_time_object start_bto = {.hour=conf->dlcfg->hours, .min=conf->dlcfg->minutes, .sec=conf->dlcfg->seconds};
+  bs->start_bto = start_bto;
+  bassa_time_object stop_bto = {.hour=conf->dlcfg->dhours, .min=conf->dlcfg->dminutes, .sec=conf->dlcfg->dseconds};
+  bs->stop_bto = stop_bto;
   htproc_count = &(bs->htproc_count);
   htproc_max = bs->htproc_max;
   bs->trig = bassa_trigger_new (conf->svrcfg->server_event_bus); 
@@ -45,6 +49,7 @@ bassa_sched_start(void* param)
   bassa_sched *bs = (bassa_sched*)param;
   bm = bassa_mutex_new();
   bs->htpool = bassa_task_pool_new(bs->htproc_count);
+  bassa_timer_set_alarm(bs->btimer, bs->start_bto.hour, bs->start_bto.min, bs->start_bto.sec);
   bassa_timer_start(bs->btimer);
   int i = -1;
   while ((i=bassa_trigger_sleep(bs->trig))>=0)
@@ -122,9 +127,8 @@ bassa_sched_start(void* param)
 	  bs->sched_sleep = AWAKE;
 	  bassa_invert_status(bs->dbd, PROCESSING, PENDING);
 	  bassa_trigger_wake(bs->trig, BASSA_INIT_PROC);
-	  /*bassa_irequest *ibirq = bassa_db_getpending(bs->dbd);
-	  if (ibirq != NULL)
-	    bassa_nowait_spawn(htpool, bassa_sched_htproc, ibirq);*/ 
+          bassa_timer_set_alarm(bs->btimer, bs->stop_bto.hour, bs->stop_bto.min, bs->stop_bto.sec);
+          bassa_timer_start(bs->btimer);
 	}
 	else
 	{
@@ -132,6 +136,8 @@ bassa_sched_start(void* param)
 	  bs->sched_sleep = SLEEPING;
 	  //Kill the whole thread pool
 	  bassa_kill_task_pool(htpool);
+          bassa_timer_set_alarm(bs->btimer, bs->start_bto.hour, bs->start_bto.min, bs->start_bto.sec);
+          bassa_timer_start(bs->btimer);
 	}
 	break;
     }
