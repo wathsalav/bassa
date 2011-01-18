@@ -18,7 +18,6 @@ int bassa__enqueue(struct soap *soap, struct bassa__request *r, char **response)
 { 
   bassa_uri *bu = NULL;
   bassa_irequest *bir = NULL;
-  bassa_trigger *btrig = NULL;
   bassa_db *dbd = NULL; 
   if (soap == NULL || r == NULL)
     return SOAP_FAULT;

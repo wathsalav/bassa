@@ -36,6 +36,7 @@ bassa_sched_new (bassa_conf *conf)
     return NULL;
   }
   btrig = bs->trig;
+  printf("BTRIG CREATED\n");
   bs->sched_sleep = SLEEPING;
   bs->btimer = bassa_timer_new(bassa_sched_alarm);
   bs->dbd = bassa_db_init();
